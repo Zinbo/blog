@@ -25,7 +25,7 @@ export default ({ data, pageContext }) => {
           <title>{`${post.title} | ${config.siteTitle}`}</title>
         </Helmet>
         <SEO postPath={slug} postNode={postNode} postSEO />
-        <div class="post">
+        <div className="post">
           <h1>{post.title}</h1>
           <p className={styles.postMeta}>
             {date} &mdash; {postNode.timeToRead} Min Read{' '}

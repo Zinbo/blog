@@ -1,36 +1,46 @@
-import React from 'react';
-import styles from './PostListing.module.scss';
-import PostTags from './PostTags';
+import React from "react";
+import { Link } from 'gatsby';
+import styles from "./PostListing.module.scss";
+import PostTags from "./PostTags";
 
-const Index = () => {
+const Index = ({ postEdges }) => {
+  const getPostList = () => {
+    const postList = [];
+    postEdges.forEach((postEdge) => {
+      postList.push({
+        path: postEdge.node.fields.slug,
+        tags: postEdge.node.frontmatter.tags,
+        categories: postEdge.node.frontmatter.categories,
+        cover: postEdge.node.frontmatter.cover,
+        title: postEdge.node.frontmatter.title,
+        date: postEdge.node.fields.date,
+        excerpt: postEdge.node.excerpt,
+        timeToRead: postEdge.node.timeToRead,
+      });
+    });
+    return postList;
+  };
+
+  const postList = getPostList();
+
   return (
     <div className={styles.postsBody}>
       <div className={styles.posts}>
-        <div className={styles.post}>
-          <div className={styles.postTitle}>This is my First Blog Post</div>
-          <div className={styles.postSubHeading}>
-            <div className={styles.postDate}>2020-01-01</div>
-            <div className={styles.postTime}>10 mins</div>
-          </div>
-          <div className={styles.postDescription}>
-            This is the start of the article. It will have some information on
-            what the article entails. blah blah blah...
-          </div>
-          <PostTags tags={['Java', 'Spring']} />
-        </div>
-
-        <div className={styles.post}>
-          <div className={styles.postTitle}>This is my Second Blog Post</div>
-          <div className={styles.postSubHeading}>
-            <div className={styles.postDate}>2020-01-01</div>
-            <div className={styles.postTime}>10 mins</div>
-          </div>
-          <div className={styles.postDescription}>
-            This is the start of the article. It will have some information on
-            what the article entails. blah blah blah...
-          </div>
-          <PostTags tags={['React', 'Gatsby']} />
-        </div>
+        {postList.map((post) => (
+          <Link to={`newIndex/${post.path}`} key={post.title}>
+            <div className={styles.post}>
+              <div className={styles.postTitle}>{post.title}</div>
+              <div className={styles.postSubHeading}>
+                <div className={styles.postDate}>{post.date}</div>
+                <div className={styles.postTime}>{post.timeToRead} min read</div>
+              </div>
+              <div className={styles.postDescription}>
+                {post.excerpt}
+              </div>
+              <PostTags tags={post.tags} />
+            </div>
+          </Link>
+        ))}
       </div>
     </div>
   );

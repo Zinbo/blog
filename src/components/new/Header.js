@@ -1,15 +1,13 @@
 import React from 'react';
 import { Link } from 'gatsby';
-import config from '../../../data/SiteConfig';
-import Categories from '../Categories';
-import styles from './header.scss';
+import styles from './Header.module.scss';
 
 const Header = () => (
-  <div className='navbar'>
-    <div className='navitems'>
+  <div className={styles.navbar}>
+    <div className={styles.navitems}>
       <Link to='/newIndex'>Stack to Basics</Link>
     </div>
-    <div className='navitems'>
+    <div className={styles.navitems}>
       <Link to='/about'>About</Link>
     </div>
   </div>

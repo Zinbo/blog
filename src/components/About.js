@@ -1,22 +1,10 @@
 import React from 'react';
 import {
-  FacebookShareButton,
-  LinkedinShareButton,
-  TwitterShareButton,
-  TelegramShareButton,
-  RedditShareButton,
-  FacebookShareCount,
-  LinkedinShareCount,
-  RedditShareCount,
-  FacebookIcon,
   TwitterIcon,
   TelegramIcon,
-  LinkedinIcon,
-  RedditIcon,
+  LinkedinIcon
 } from 'react-share';
 import { SocialMediaIconsReact } from 'social-media-icons-react';
-import { SocialIcon } from 'react-social-icons';
-import { Link } from 'gatsby';
 import profilePic from '../../static/images/profile.jpg';
 import styles from './About.module.scss';
 

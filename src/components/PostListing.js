@@ -1,7 +1,41 @@
-import React from "react";
+import React from 'react';
 import { Link } from 'gatsby';
-import styles from "./PostListing.module.scss";
-import PostTags from "./PostTags";
+import styles from './PostListing.module.scss';
+import PostTags from './PostTags';
+
+const getOlderAndNewerButtonsIfLimitExists = (pageContext) => {
+  if (pageContext) {
+    const { currentPage, numPages } = pageContext;
+
+    const isFirst = currentPage === 1;
+    const isLast = currentPage === numPages;
+    const prevPage =
+      currentPage - 1 === 1 ? '/' : `/${(currentPage - 1).toString()}`;
+    const nextPage = `/${(currentPage + 1).toString()}`;
+
+    return (
+      <div>
+        <ul className={styles.pagination}>
+          {!isFirst && (
+            <li className={styles.prevPage}>
+              <Link to={prevPage} rel='prev'>
+                ← Newer
+              </Link>
+            </li>
+          )}
+          {!isLast && (
+            <li className={styles.nextPage}>
+              <Link to={nextPage} rel='next'>
+                Older →
+              </Link>
+            </li>
+          )}
+        </ul>
+      </div>
+    );
+  }
+  return <div></div>;
+};
 
 const Index = ({ postEdges, pageContext }) => {
   const getPostList = () => {
@@ -23,14 +57,6 @@ const Index = ({ postEdges, pageContext }) => {
 
   const postList = getPostList();
 
-  const { currentPage, numPages } = pageContext
-  const isFirst = currentPage === 1
-  const isLast = currentPage === numPages
-  const prevPage = currentPage - 1 === 1 ? "/" : `/${(currentPage - 1).toString()}`
-  const nextPage = `/${(currentPage + 1).toString()}`
-
-
-
   return (
     <div className={styles.postsBody}>
       <div className={styles.posts}>
@@ -40,35 +66,17 @@ const Index = ({ postEdges, pageContext }) => {
               <div className={styles.postTitle}>{post.title}</div>
               <div className={styles.postSubHeading}>
                 <div className={styles.postDate}>{post.date}</div>
-                <div className={styles.postTime}>{post.timeToRead} min read</div>
+                <div className={styles.postTime}>
+                  {post.timeToRead} min read
+                </div>
               </div>
-              <div className={styles.postDescription}>
-                {post.excerpt}
-              </div>
+              <div className={styles.postDescription}>{post.excerpt}</div>
               <PostTags tags={post.tags} />
             </div>
           </Link>
-        ))} 
+        ))}
       </div>
-      <div>
-        <ul className={styles.pagination}>
-          {!isFirst && (
-            <li className={styles.prevPage}>
-              <Link to={prevPage} rel="prev">
-          ← Previous Page
-              </Link>
-        
-            </li>
-        )}
-          {!isLast && (
-          <li className={styles.nextPage}>
-            <Link to={nextPage} rel="next">
-          Next Page →
-            </Link>
-          </li>
-        )}
-        </ul>
-      </div>
+      {getOlderAndNewerButtonsIfLimitExists(pageContext)}
     </div>
   );
 };

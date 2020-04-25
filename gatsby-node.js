@@ -125,25 +125,23 @@ exports.createPages = async ({ graphql, actions }) => {
         prevslug: prevEdge.node.fields.slug,
       },
     });
-
   });
 
-
   // generate post listing
-  const postsPerPage = 6
-  const numPages = Math.ceil(postsEdges.length / postsPerPage)
+  const postsPerPage = 6;
+  const numPages = Math.ceil(postsEdges.length / postsPerPage);
   Array.from({ length: numPages }).forEach((_, i) => {
     createPage({
       path: i === 0 ? `/` : `/${i + 1}`,
-      component: path.resolve("./src/templates/postListing.js"),
+      component: path.resolve('./src/templates/index.js'),
       context: {
         limit: postsPerPage,
         skip: i * postsPerPage,
         numPages,
         currentPage: i + 1,
       },
-    })
-  })
+    });
+  });
 
   // Generate link foreach tag page
   tagSet.forEach((tag) => {

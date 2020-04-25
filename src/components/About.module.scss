@@ -9,3 +9,13 @@ html {
     color: #A6A6A6;
     font-family: 'Roboto';
 }
+
+.contactSection {
+    display: flex;
+    justify-content: center;
+}
+
+.contactTitle {
+    min-width: 100%;
+    text-align: center;
+}

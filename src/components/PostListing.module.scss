@@ -74,33 +74,6 @@
 
             .tags {
                 display: flex;
-
-                .tag {
-                    width: 82px;
-                    height: 19px;
-
-                    background: #E5E5E5;
-                    border: 1px solid #000000;
-                    border-radius: 1px;
-
-                    font-family: Roboto Mono;
-                    font-style: normal;
-                    font-weight: bold;
-                    font-size: 12px;
-                    line-height: 14px;
-                    /* identical to box height */
-
-
-                    color: #000000;
-                    text-align: center;
-
-                    margin-right: 20px;
-
-                    &:hover {
-                        cursor: pointer;
-                        box-shadow: 5px 5px 0px #000000;
-                    }
-                }
             }
             
         }

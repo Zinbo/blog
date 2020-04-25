@@ -36,8 +36,10 @@
     "react-dom": "^16.9.0",
     "react-helmet": "^5.2.1",
     "react-share": "^2.4.0",
+    "react-social-icons": "^4.1.0",
     "react-twitter-widgets": "^1.7.1",
     "react-typography": "^0.16.19",
+    "social-media-icons-react": "^1.0.10",
     "typography": "^0.16.19",
     "typography-theme-stow-lake": "^0.16.19",
     "url-join": "^4.0.1"

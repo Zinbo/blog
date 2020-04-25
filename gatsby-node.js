@@ -44,7 +44,6 @@ exports.onCreateNode = ({ node, actions, getNode }) => {
 exports.createPages = async ({ graphql, actions }) => {
   const { createPage } = actions;
   const postPage = path.resolve('src/templates/post.js');
-  const newPostPage = path.resolve('src/templates/new/post.js');
   const tagPage = path.resolve('src/templates/tag.js');
   const categoryPage = path.resolve('src/templates/category.js');
 
@@ -127,18 +126,25 @@ exports.createPages = async ({ graphql, actions }) => {
       },
     });
 
-    createPage({
-      path: '/newIndex' + edge.node.fields.slug,
-      component: newPostPage,
-      context: {
-        slug: edge.node.fields.slug,
-        nexttitle: nextEdge.node.frontmatter.title,
-        nextslug: nextEdge.node.fields.slug,
-        prevtitle: prevEdge.node.frontmatter.title,
-        prevslug: prevEdge.node.fields.slug,
-      },
-    });
   });
+
+
+  // generate post listing
+  const postsPerPage = 6
+  const numPages = Math.ceil(postsEdges.length / postsPerPage)
+  Array.from({ length: numPages }).forEach((_, i) => {
+    createPage({
+      path: i === 0 ? `/` : `/${i + 1}`,
+      component: path.resolve("./src/templates/postListing.js"),
+      context: {
+        limit: postsPerPage,
+        skip: i * postsPerPage,
+        numPages,
+        currentPage: i + 1,
+      },
+    })
+  })
+
   // Generate link foreach tag page
   tagSet.forEach((tag) => {
     createPage({

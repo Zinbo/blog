@@ -1,38 +1,9 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto');
 body {
-  margin: 0;
-  background: #fafbfb;
-}
+    background: #1E1E1E;
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  margin-top: 1rem;
-}
-
-main {
-  margin-left: auto;
-  margin-right: auto;
-  max-width: 50rem;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  padding: 20px;
-}
-
-article {
-  height: 90%;
-  border-color: white;
-
-  &:hover {
-    box-shadow: 0px 11px 22px 12px darkgray;
-    border-radius: 5px;
-    
-  }
-}
-
-body {
-  background-color: darkgray;
+    #new-index-container {
+        display: flex;
+        flex-direction: column;
+    }
 }

@@ -1,11 +1,12 @@
-import React from 'react';
+import React from "react";
 import { Link } from 'gatsby';
-import styles from './PostsListing.module.scss';
+import styles from "./PostListing.module.scss";
+import PostTags from "./PostTags";
 
-const PostListing = ({ postEdges }) => {
+const Index = ({ postEdges, pageContext }) => {
   const getPostList = () => {
     const postList = [];
-    postEdges.forEach(postEdge => {
+    postEdges.forEach((postEdge) => {
       postList.push({
         path: postEdge.node.fields.slug,
         tags: postEdge.node.frontmatter.tags,
@@ -14,32 +15,62 @@ const PostListing = ({ postEdges }) => {
         title: postEdge.node.frontmatter.title,
         date: postEdge.node.fields.date,
         excerpt: postEdge.node.excerpt,
-        timeToRead: postEdge.node.timeToRead
+        timeToRead: postEdge.node.timeToRead,
       });
     });
     return postList;
   };
 
   const postList = getPostList();
+
+  const { currentPage, numPages } = pageContext
+  const isFirst = currentPage === 1
+  const isLast = currentPage === numPages
+  const prevPage = currentPage - 1 === 1 ? "/" : `/${(currentPage - 1).toString()}`
+  const nextPage = `/${(currentPage + 1).toString()}`
+
+
+
   return (
-    <div className={styles.articleList}>
-      {/* Your post list here. */
-      postList.map(post => (
-        <Link to={post.path} key={post.title}>
-          <article className={styles.articleBox}>
-            <div className={styles.right}>
-              <h3>{post.title}</h3>
-              <div className={styles.meta}>
-                {post.date} &mdash; <span>{post.categories.join(' / ')}</span>{' '}
-                &mdash; {post.timeToRead} Min Read{' '}
+    <div className={styles.postsBody}>
+      <div className={styles.posts}>
+        {postList.map((post) => (
+          <Link to={post.path} key={post.title}>
+            <div className={styles.post}>
+              <div className={styles.postTitle}>{post.title}</div>
+              <div className={styles.postSubHeading}>
+                <div className={styles.postDate}>{post.date}</div>
+                <div className={styles.postTime}>{post.timeToRead} min read</div>
               </div>
-              <p>{post.excerpt}</p>
+              <div className={styles.postDescription}>
+                {post.excerpt}
+              </div>
+              <PostTags tags={post.tags} />
             </div>
-          </article>
-        </Link>
-      ))}
+          </Link>
+        ))} 
+      </div>
+      <div>
+        <ul className={styles.pagination}>
+          {!isFirst && (
+            <li className={styles.prevPage}>
+              <Link to={prevPage} rel="prev">
+          ← Previous Page
+              </Link>
+        
+            </li>
+        )}
+          {!isLast && (
+          <li className={styles.nextPage}>
+            <Link to={nextPage} rel="next">
+          Next Page →
+            </Link>
+          </li>
+        )}
+        </ul>
+      </div>
     </div>
   );
 };
 
-export default PostListing;
+export default Index;

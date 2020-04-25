@@ -1,19 +1,19 @@
-import React from 'react'
-import _ from 'lodash'
-import { Link } from 'gatsby'
-import styles from './PostTags.module.scss'
+import React from 'react';
+import _ from 'lodash';
+import { Link } from 'gatsby';
+import styles from './PostTags.module.scss';
 
 const PostTags = ({ tags }) => {
   return (
-    <div className={styles.tagContainer}>
+    <div className={styles.tags}>
       {tags &&
-        tags.map(tag => (
+        tags.map((tag) => (
           <Link key={tag} to={`/tags/${_.kebabCase(tag)}`}>
-            <span>{tag}</span>
+            <div className={styles.tag}>{tag}</div>
           </Link>
         ))}
     </div>
-  )
-}
+  );
+};
 
-export default PostTags
+export default PostTags;

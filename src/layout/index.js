@@ -6,14 +6,14 @@ import config from '../../data/SiteConfig'
 import styles from './index.module.scss'
 
 const MainLayout = ({ children }) => (
-  <>
+  <div id="new-index-container">
     <Header />
     <Helmet>
       <meta name="description" content={config.siteDescription} />
     </Helmet>
     {children}
     <Footer />
-  </>
+  </div>
 )
 
 export default MainLayout

@@ -2,14 +2,19 @@
     display: flex;
     flex-grow: 1;
     justify-content: center;
+    flex-direction: column;
     
     
 
     .posts {
-        flex-basis: 60%;
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 50rem;        
+        
         // display: flex;
         // flex-direction: column;
         .post {
+
             // display: flex;
             // flex-direction: column;
             // flex-grow: 1;
@@ -102,9 +107,28 @@
     }
 }
 
+
+.pagination {
+    list-style: none;
+    padding: 0;
+    padding-bottom: 2rem    ;
+    font-family: 'Roboto Mono';
+    font-weight: bold;
+}
+
+.prevPage {
+    float: left
+}
+
+.nextPage {
+    float: right;
+    text-align: right;
+    align-self: flex-end;
+}
+
 @media (max-width: 768px) {
     .posts {
         // background-color: yellow;
-        flex-basis: 90% !important;
+        max-width: 90% !important;
     }
 }

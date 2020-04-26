@@ -17,7 +17,7 @@ What I realised was that these people who were writing these blog posts were und
 
 So this is my goal for this blog post: explain Spring to you like a human. I want to answer the questions I had when I first started looking at Spring.
 
-## What is Spring anyway?
+## What is Spring Anyway?
 When people say "Spring" (assuming they are talking about software development and not DIY or slinkys) they usually mean the [Spring Framework](https://spring.io/projects/spring-framework). Over the past few years it's possible that people may now refer more to [Spring Boot](https://spring.io/projects/spring-boot) when they say "Spring", but lets start with the basics first.
 
 The Spring framework "provides a comprehensive programming and configuration model for modern Java-based enterprise applications". So what does that mean?  
@@ -32,7 +32,9 @@ The Spring framework is comprised of a few different parts:
 
 In this post we'll focus on Core, and specifically dependency management.
 
-### Spring Core
+## Spring Core
+
+### Dependency Injection
 A big part of Spring Core is this idea of dependency injection. Dependency injection is a design pattern which makes a class independent of its dependencies (its variables). 
 
 Lets look at an example:
@@ -359,10 +361,26 @@ And it's not just Spring Core. Spring has a multitude of different projects. Som
 - [Spring Data](https://spring.io/projects/spring-data): Easily create repository interfaces for your ORM objects, including automatically deriving queries from your method names
 - [Spring Cloud](https://spring.io/projects/spring-cloud): Provides tools for building cloud ready applications.
 
+## What are some alternatives to Spring?
+
+Spring is a big topic, but lets list some alternatives to the Spring framework and Spring Boot
+
+Alternatives to Spring Framework (DI):
+- [Guice](https://github.com/google/guice)
+- [Dagger](https://dagger.dev/)
+
+Alternatives to Spring Boot:
+- [Micronaut](https://micronaut.io/)
+- [Dropwizard](https://www.dropwizard.io/en/latest/)
+- [Quarkus](https://quarkus.io/)
+
+I think the one to look out for is Micronaut - It's getting a lot of traction in the Java community due to its compatibility with [GraalVM](https://www.graalvm.org/) and it lack of use of Reflection.
+
+
 ## What you've learnt
 Well done for sticking to the end!
 
-Spring can appear overwhelming and confusing, and indeed it is a big subject. Much bigger than this blog post has room for. However like with anything, start small and build your knowledge over time. 
+Spring can appear overwhelming and confusing, and indeed it is a big subject. Much bigger than this blog post has room for. However, like with anything, start small and build your knowledge over time. 
 
 I would recommend getting your head around using Spring for dependency injection by trying the examples laid out here in this blog yourself, and then giving Spring Boot a go. Spring's own guide on creating a [RESTful web service](https://spring.io/guides/gs/rest-service/) is a good place to start.
 

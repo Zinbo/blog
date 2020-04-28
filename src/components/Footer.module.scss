@@ -28,6 +28,10 @@
         }
     }
 
-    
+    @media (max-width: 768px) {
+        .copyright {
+            padding-left: 1rem;
+        }
+    }
 
 }

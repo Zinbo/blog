@@ -1,5 +1,5 @@
 # Mockito Cheat Sheet
-Mockito is a great framework for testing in java. I use it all the time and have done for many years now. It works hand in hand with dependnecy injection, a topic I covered in my last blog "Spring for humans". However I find it's a victim of it's own success - there's a lot you can do with it so I often forget how to do things!
+Mockito is a great framework for testing in java. I use it all the time and have done for many years now. It works hand in hand with dependnecy injection, a topic I covered in my last blog "Spring for humans". However I sometimes find it's a victim of it's own success - there's a lot you can do with it so I often forget how to do things!
 
 So here's a cheat sheet which covers most of the features I use in Mockito.
 
@@ -174,60 +174,318 @@ public class MyClassTest {
 }
 ```
 
-## Using Deep Stubs
-TODO
+# Injecting Mocks
+## Using @InjectMocks annotation
+```java
+public class InjectTest {
+
+    @Mock
+    private BlogRepository blogRepository;
+    @InjectMocks
+    private BlogPostService blogPostService;
+
+    @Before
+    public void setup() {
+        MockitoAnnotations.initMocks(this);
+        System.out.println(blogPostService);
+    }
+}
+```
+
+## Using Constructor
+```java
+public class InjectTest {
+
+    @Mock
+    private BlogRepository blogRepository;
+    @InjectMocks
+    private BlogPostService blogPostService;
+
+    @Before
+    public void setup() {
+        MockitoAnnotations.initMocks(this);
+        blogPostService = new BlogPostService(blogRepository);
+    }
+}
+```
+
 
 # Stubbing a method
 ## Returning from a stubbed Method
 ```java
-import org.mockito.MockitoAnnotations;
-import org.junit.Before;
-import org.mockito.Spy;
-
-public class MyClassTest {
+@Test
+public void getAllBlogPosts_withBlogPostsInDb_returnsBlogPosts() {
+    // arrange
+    List<BlogPost> expected = Arrays.asList(new BlogPost("Spring for humans"), 
+            new BlogPost("Mockito Cheatsheet"));
+    BlogRepository blogRepository = Mockito.mock(BlogRepository.class);
+    Mockito.when(blogRepository.getAllBlogPosts()).thenReturn(expected);
+    BlogPostService service = new BlogPostService(blogRepository);
     
-    private Person person = Person("name", 18);
-
-    @Before
-    public void before() throw Exception {
-        Mockito.initMocks(this);
-        person = Mockito.spy(person);
-        Mockito.when(person.calculateIfOldEnoughToDrink()).thenReturn(true);
-    }
-
-    ...
+    // act
+    List<BlogPost> actual = service.getAllBlogPosts();
+    
+    // assemble
+    assertEquals(expected, actual);
 }
 ```
-TODO: When using when then return on a spy, Mockito will call the real method and then stub your answer - is that true?
-- apparently using doAnswer means you can stub it safely.
-## Providing alternative implementation for a method
-TODO: Look into returnAnswer?
 
-## Stubbing a void method
-TODO: look into doAnswer
+## Providing alternative implementation for a method
 ```java
-doAnswer
+@Test
+public void getBlogPostById_withExistingBlogPostInDb_returnsBlogPost() {
+    // arrange
+    BlogPost expected = new BlogPost("Spring for Humans");
+    BlogRepository blogRepository = Mockito.mock(BlogRepository.class);
+    Mockito.when(blogRepository.getBlogPostById(Mockito.anyInt())).thenAnswer(invocationOnMock -> {
+        int id = invocationOnMock.getArgument(0);
+        if(id == 1) return Optional.of(expected);
+        else return Optional.empty();
+    });
+    BlogPostService service = new BlogPostService(blogRepository);
+
+    // act
+    BlogPost actual = service.getBlogPostById(1).get();
+
+    // assemble
+    assertEquals(expected, actual);
+}
+```
+
+## Throwing Exception from Method
+```java
+@Test(expected = IllegalArgumentException.class)
+public void getBlogPostById_withMissingBlogPost_throwsException() {
+    // arrange
+    BlogPost expected = new BlogPost("Spring for Humans");
+    BlogRepository blogRepository = Mockito.mock(BlogRepository.class);
+    Mockito.when(blogRepository.getBlogPostById(1)).thenThrow(new IllegalArgumentException());
+    BlogPostService service = new BlogPostService(blogRepository);
+
+    // act
+    BlogPost actual = service.getBlogPostById(1).get();
+
+    // assemble
+    // Test will pass if exception of type IllegalArgumentException is thrown
+}
+```
+
+## Using Deep Stubs
+Deep stubs are used for methods which are chained, but you don't care about the intermediate values. These should be used sparingly, as discussed in the [Mockito documentation](https://www.javadoc.io/static/org.mockito/mockito-core/3.3.3/org/mockito/Mockito.html#RETURNS_DEEP_STUBS).
+
+```java
+// Without deep stubs
+@Test
+public void checkIfDriverIsPostgres_withPostgresDriver_returnsTrue() {
+    // arrange
+    Configuration configMock = Mockito.mock(Configuration.class);
+    RepositoryConfiguration repositoryConfigMock = Mockito.mock(RepositoryConfiguration.class);
+    Mockito.when(configMock.getRepositoryConfiguration()).thenReturn(repositoryConfigMock);
+    DatabaseConfiguration databaseConfigMock = Mockito.mock(DatabaseConfiguration.class);
+    Mockito.when(repositoryConfigMock.getDatabaseConfiguration()).thenReturn(databaseConfigMock);
+    DatabaseConfiguration.DriverConfiguration driverConfigMock = Mockito.mock(DatabaseConfiguration.DriverConfiguration.class);
+    Mockito.when(databaseConfigMock.getDriverConfiguration()).thenReturn(driverConfigMock);
+    Mockito.when(driverConfigMock.getDriverType()).thenReturn("postgres");
+
+    BlogRepository blogRepository = new BlogRepository(configMock);
+
+    // act
+    boolean actual = blogRepository.checkIfDriverIsPostgres();
+
+    // assert
+    Assert.assertTrue(actual);
+}
+
+// With deep stubs
+@Test
+public void usingDeepStubs_checkIfDriverIsPostgres_withPostgresDriver_returnsTrue() {
+    // arrange
+    Configuration configMock = Mockito.mock(Configuration.class, Mockito.RETURNS_DEEP_STUBS);
+    Mockito.when(configMock.getRepositoryConfiguration()
+            .getDatabaseConfiguration().getDriverConfiguration().getDriverType()).thenReturn("postgres");
+
+    BlogRepository blogRepository = new BlogRepository(configMock);
+
+    // act
+    boolean actual = blogRepository.checkIfDriverIsPostgres();
+
+    // assert
+    Assert.assertTrue(actual);
+}
+```
+
+# Stubbing a Void Method
+
+## Performing action when method is called
+```java
+@Test
+public void getAllBlogPosts_withBlogPostsInDb_callsVerifyConnectionToDatabaseIsAlive() {
+    // arrange
+    Configuration configMock = Mockito.mock(Configuration.class);
+    BlogRepository blogRepository = new BlogRepository(configMock);
+
+    AtomicBoolean verifyMethodCalled = new AtomicBoolean(false);
+    Mockito.doAnswer(invocationOnMock -> {
+        // We can do whatever we want here, and it will be executed when
+        // verifyConnectionToDatabaseIsAlive
+        // If the method had any arguments, we can capture them here
+        verifyMethodCalled.set(true);
+        return null;
+    }).when(configMock).verifyConnectionToDatabaseIsAlive();
+
+    // act
+    blogRepository.getAllBlogPosts();
+
+    // assert
+    assertTrue(verifyMethodCalled.get());
+}
 ```
 
 ## Calling real method
-TODO: callRealMethod
+```java
+@Test
+public void getAllBlogPosts_withBlogPostsInDb_returnsBlogPosts() {
+    // arrange
+    Configuration configMock = Mockito.mock(Configuration.class);
+    BlogRepository blogRepository = new BlogRepository(configMock);
 
-## throwing an exception from a method
+    AtomicBoolean verifyMethodCalled = new AtomicBoolean(false);
+    Mockito.doCallRealMethod().when(configMock).verifyConnectionToDatabaseIsAlive();
+
+    // act
+    blogRepository.getAllBlogPosts();
+
+    // assert
+    // Test will pass if exception of type DatabaseDownException is thrown
+}
+```
+
+## Throwing an Exception from a Method
+```java
+@Test(expected = DatabaseDownException.class)
+public void getAllBlogPosts_withConnectionToDbDown_throwsException() {
+    // arrange
+    Configuration configMock = Mockito.mock(Configuration.class);
+    BlogRepository blogRepository = new BlogRepository(configMock);
+
+    AtomicBoolean verifyMethodCalled = new AtomicBoolean(false);
+    Mockito.doThrow(new DatabaseDownException()).when(configMock).verifyConnectionToDatabaseIsAlive();
+
+    // act
+    blogRepository.getAllBlogPosts();
+
+    // assert
+    // Test will pass if exception of type DatabaseDownException is thrown
+}
+```
 
 # Matchers
  
 ## Using real param
+```java
+@Test
+public void getBlogPostByAuthorAndAfterDate_withExistingBlogPostsInDb_returnsBlogPosts() {
+    // arrange
+    List<BlogPost> expected = Collections.singletonList(new BlogPost("Spring for Humans"));
+    BlogRepository blogRepository = Mockito.mock(BlogRepository.class);
+    Date date = new Date();
+    String author = "Shane";
+    Mockito.when(blogRepository.getBlogPostsByAuthorAndAfterDate(author, date)).thenReturn(expected);
+    BlogPostService service = new BlogPostService(blogRepository);
+
+    // act
+    List<BlogPost> actual = service.getBlogPostsByAuthorAndAfterDate(author, date);
+
+    // assemble
+    assertEquals(expected, actual);
+}
+```
 
 ## Using any
+```java
+@Test
+public void getBlogPostByAuthorAndAfterDate_withoutMatchingBlogPostsInDb_returnsEmptyList() {
+    // arrange
+    BlogRepository blogRepository = Mockito.mock(BlogRepository.class);
+    Mockito.when(blogRepository.getBlogPostsByAuthorAndAfterDate(Mockito.any(), Mockito.any())).thenReturn(Collections.emptyList());
+    BlogPostService service = new BlogPostService(blogRepository);
+
+    // act
+    List<BlogPost> actual = service.getBlogPostsByAuthorAndAfterDate("any author", new Date());
+
+    // assemble
+    assertTrue(actual.isEmpty());
+}
+```
 
 ## Using anyClass
+```java
+@Test
+public void getBlogPostByAuthorAndAfterDate_withMatchingAuthorAndDate_returnsPostsSortedByDate() {
+    // arrange
+    BlogPost first = new BlogPost("Spring for Humans", "Shane", new Date(5));
+    BlogPost second = new BlogPost("Mockito Cheatsheet", "Shane", new Date(6));
+    BlogPost third = new BlogPost("?", "Shane", new Date(7));
+    BlogRepository blogRepository = Mockito.mock(BlogRepository.class);
+    // Good for overloaded methods, you can specify type of params so the call isn't ambiguous.
+    Mockito.when(blogRepository.getBlogPostsByAuthorAndAfterDate(Mockito.any(String.class), Mockito.any(Date.class)))
+            .thenReturn(Arrays.asList(second, third, first));
+    BlogPostService service = new BlogPostService(blogRepository);
+
+    List<BlogPost> expected = Arrays.asList(first, second, third);
+
+    // act
+    List<BlogPost> actual = service.getBlogPostsByAuthorAndAfterDate("any author", new Date());
+
+    // assemble
+    assertEquals(expected.get(0), actual.get(0));
+    assertEquals(expected.get(1), actual.get(1));
+    assertEquals(expected.get(2), actual.get(2));
+}
+```
+
 
 ## Using eq
+```java
+@Test
+public void getBlogPostByAuthorAndAfterDate_withMatchingAuthorButFutureDate_returnsEmptyList() {
+    // arrange
+    List<BlogPost> expected = Collections.singletonList(new BlogPost("Spring for Humans"));
+    BlogRepository blogRepository = Mockito.mock(BlogRepository.class);
+    Date date = new Date();
+    Mockito.when(blogRepository.getBlogPostsByAuthorAndAfterDate(Mockito.any(), Mockito.eq(date))).thenReturn(expected);
+    BlogPostService service = new BlogPostService(blogRepository);
+
+    // act
+    List<BlogPost> actual = service.getBlogPostsByAuthorAndAfterDate("any author", date);
+
+    // assemble
+    assertTrue(actual.isEmpty());
+}
+```
 
 ## Using custom matcher
+```java
+@Test
+public void checkIfBlogPostHasBeenSaved_withBlogPost_returnsTrue() {
+    // arrange
+    BlogPost post = new BlogPost("Spring for Humans", "Shane", new Date(5));
+    BlogRepository blogRepository = Mockito.mock(BlogRepository.class);
 
-# Injecting Mocks
+    ArgumentMatcher<BlogPost> blogPostMatcher = passedBlogPost ->
+            "Shane".equals(passedBlogPost.getAuthor());
 
+    Mockito.when(blogRepository.checkIfBlogPostHasBeenSaved(Mockito.argThat(blogPostMatcher)))
+            .thenReturn(true);
+    BlogPostService service = new BlogPostService(blogRepository);
+
+    // act
+    boolean actual = service.checkIfBlogPostHasBeenSaved(post);
+
+    // assemble
+    assertTrue(actual);
+}
+```
 
 # Verifying a Mock has been called
 

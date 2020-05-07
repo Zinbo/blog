@@ -1,5 +1,16 @@
+---
+date: 2020-05-04
+title: "Mockito Cheatsheet"
+cover: "https://source.unsplash.com/4RWk9AD8U8w/400x300"
+categories: 
+    - Java
+tags:
+    - Mockito
+    - Java
+---
+
 # Mockito Cheat Sheet
-Mockito is a great framework for testing in java. I use it all the time and have done for many years now. It works hand in hand with dependnecy injection, a topic I covered in my last blog "Spring for humans". However I sometimes find it's a victim of it's own success - there's a lot you can do with it so I often forget how to do things!
+Mockito is a great framework for testing in java. I use it all the time and have done for many years now. It works hand in hand with dependnecy injection, a topic I covered in my last blog ["Spring for Humans"](https://stacktobasics.com/spring-for-humans). However I sometimes find it's a victim of it's own success - there's a lot you can do with it so it's easy to forget how to do things!
 
 So here's a cheat sheet which covers most of the features I use in Mockito.
 
@@ -26,7 +37,7 @@ public class MyClassTest {
 }
 ```
 
-## Using @Before
+## Using initMocks
 Useful if you need more than one RunWith/Extend (e.g. `SpringJunit4ClassRunner`)
 ```java
 import org.mockito.MockitoAnnotations;
@@ -39,8 +50,6 @@ public class MyClassTest {
     }
     ...
 }
-
-
 ```
 
 # Creating Mocks and Spies
@@ -71,7 +80,7 @@ public class MyClassTest {
 }
 ```
 
-### Create from method
+### Create from Method
 ```java
 import org.mockito.MockitoAnnotations;
 import org.junit.Before;
@@ -90,7 +99,7 @@ public class MyClassTest {
 }
 ```
 
-### Create from method using Initialised Object
+### Create from Method using Initialised Object
 Useful if you want a mock to be created from an object which has been constructed using a constructor.
 
 ```java
@@ -134,7 +143,7 @@ public class MyClassTest {
 }
 ```
 
-### Create from method
+### Create from Method
 ```java
 import org.mockito.MockitoAnnotations;
 import org.junit.Before;
@@ -175,7 +184,7 @@ public class MyClassTest {
 ```
 
 # Injecting Mocks
-## Using @InjectMocks annotation
+## Using @InjectMocks Annotation
 ```java
 public class InjectTest {
 
@@ -225,12 +234,12 @@ public void getAllBlogPosts_withBlogPostsInDb_returnsBlogPosts() {
     // act
     List<BlogPost> actual = service.getAllBlogPosts();
     
-    // assemble
+    // assert
     assertEquals(expected, actual);
 }
 ```
 
-## Providing alternative implementation for a method
+## Providing an Alternative Implementation for a Method
 ```java
 @Test
 public void getBlogPostById_withExistingBlogPostInDb_returnsBlogPost() {
@@ -247,12 +256,12 @@ public void getBlogPostById_withExistingBlogPostInDb_returnsBlogPost() {
     // act
     BlogPost actual = service.getBlogPostById(1).get();
 
-    // assemble
+    // assert
     assertEquals(expected, actual);
 }
 ```
 
-## Throwing Exception from Method
+## Throwing an Exception from a Method
 ```java
 @Test(expected = IllegalArgumentException.class)
 public void getBlogPostById_withMissingBlogPost_throwsException() {
@@ -265,8 +274,25 @@ public void getBlogPostById_withMissingBlogPost_throwsException() {
     // act
     BlogPost actual = service.getBlogPostById(1).get();
 
-    // assemble
+    // assert
     // Test will pass if exception of type IllegalArgumentException is thrown
+}
+```
+
+## Calling the Real Implementation
+```java
+@Test
+public void getBlogPostById_withMissingBlogPost_returnsEmpty() {
+    // arrange
+    BlogRepository blogRepository = Mockito.mock(BlogRepository.class);
+    Mockito.when(blogRepository.getBlogPostById(1)).thenCallRealMethod();
+    BlogPostService service = new BlogPostService(blogRepository);
+
+    // act
+    Optional<BlogPost> actual = service.getBlogPostById(1);
+
+    // assert
+    assertFalse(actual.isPresent());
 }
 ```
 
@@ -316,7 +342,7 @@ public void usingDeepStubs_checkIfDriverIsPostgres_withPostgresDriver_returnsTru
 
 # Stubbing a Void Method
 
-## Performing action when method is called
+## Providing an Alternative Implementation for a Method
 ```java
 @Test
 public void getAllBlogPosts_withBlogPostsInDb_callsVerifyConnectionToDatabaseIsAlive() {
@@ -341,25 +367,6 @@ public void getAllBlogPosts_withBlogPostsInDb_callsVerifyConnectionToDatabaseIsA
 }
 ```
 
-## Calling real method
-```java
-@Test
-public void getAllBlogPosts_withBlogPostsInDb_returnsBlogPosts() {
-    // arrange
-    Configuration configMock = Mockito.mock(Configuration.class);
-    BlogRepository blogRepository = new BlogRepository(configMock);
-
-    AtomicBoolean verifyMethodCalled = new AtomicBoolean(false);
-    Mockito.doCallRealMethod().when(configMock).verifyConnectionToDatabaseIsAlive();
-
-    // act
-    blogRepository.getAllBlogPosts();
-
-    // assert
-    // Test will pass if exception of type DatabaseDownException is thrown
-}
-```
-
 ## Throwing an Exception from a Method
 ```java
 @Test(expected = DatabaseDownException.class)
@@ -379,9 +386,29 @@ public void getAllBlogPosts_withConnectionToDbDown_throwsException() {
 }
 ```
 
+## Calling the Real Implementation
+```java
+@Test
+public void getAllBlogPosts_withBlogPostsInDb_returnsBlogPosts() {
+    // arrange
+    Configuration configMock = Mockito.mock(Configuration.class);
+    BlogRepository blogRepository = new BlogRepository(configMock);
+
+    AtomicBoolean verifyMethodCalled = new AtomicBoolean(false);
+    Mockito.doCallRealMethod().when(configMock).verifyConnectionToDatabaseIsAlive();
+
+    // act
+    blogRepository.getAllBlogPosts();
+
+    // assert
+    // Test will pass if exception of type DatabaseDownException is thrown
+}
+```
+
+
 # Matchers
  
-## Using real param
+## Using a Real Parameter
 ```java
 @Test
 public void getBlogPostByAuthorAndAfterDate_withExistingBlogPostsInDb_returnsBlogPosts() {
@@ -396,12 +423,12 @@ public void getBlogPostByAuthorAndAfterDate_withExistingBlogPostsInDb_returnsBlo
     // act
     List<BlogPost> actual = service.getBlogPostsByAuthorAndAfterDate(author, date);
 
-    // assemble
+    // assert
     assertEquals(expected, actual);
 }
 ```
 
-## Using any
+## Using any()
 ```java
 @Test
 public void getBlogPostByAuthorAndAfterDate_withoutMatchingBlogPostsInDb_returnsEmptyList() {
@@ -413,12 +440,12 @@ public void getBlogPostByAuthorAndAfterDate_withoutMatchingBlogPostsInDb_returns
     // act
     List<BlogPost> actual = service.getBlogPostsByAuthorAndAfterDate("any author", new Date());
 
-    // assemble
+    // assert
     assertTrue(actual.isEmpty());
 }
 ```
 
-## Using anyClass
+## Using anyClass()
 ```java
 @Test
 public void getBlogPostByAuthorAndAfterDate_withMatchingAuthorAndDate_returnsPostsSortedByDate() {
@@ -437,7 +464,7 @@ public void getBlogPostByAuthorAndAfterDate_withMatchingAuthorAndDate_returnsPos
     // act
     List<BlogPost> actual = service.getBlogPostsByAuthorAndAfterDate("any author", new Date());
 
-    // assemble
+    // assert
     assertEquals(expected.get(0), actual.get(0));
     assertEquals(expected.get(1), actual.get(1));
     assertEquals(expected.get(2), actual.get(2));
@@ -445,7 +472,7 @@ public void getBlogPostByAuthorAndAfterDate_withMatchingAuthorAndDate_returnsPos
 ```
 
 
-## Using eq
+## Using eq()
 ```java
 @Test
 public void getBlogPostByAuthorAndAfterDate_withMatchingAuthorButFutureDate_returnsEmptyList() {
@@ -459,12 +486,12 @@ public void getBlogPostByAuthorAndAfterDate_withMatchingAuthorButFutureDate_retu
     // act
     List<BlogPost> actual = service.getBlogPostsByAuthorAndAfterDate("any author", date);
 
-    // assemble
+    // assert
     assertTrue(actual.isEmpty());
 }
 ```
 
-## Using custom matcher
+## Using Custom Matcher
 ```java
 @Test
 public void checkIfBlogPostHasBeenSaved_withBlogPost_returnsTrue() {
@@ -482,11 +509,72 @@ public void checkIfBlogPostHasBeenSaved_withBlogPost_returnsTrue() {
     // act
     boolean actual = service.checkIfBlogPostHasBeenSaved(post);
 
-    // assemble
+    // assert
     assertTrue(actual);
 }
 ```
 
-# Verifying a Mock has been called
+# Verify a Stubbed Method Has Been Called
+```java
+@Test
+public void getAllBlogPosts_withBlogPost_verifiesThatRepositoryWasCalled() {
+    // arrange
+    List<BlogPost> expected = Arrays.asList(new BlogPost("Spring for humans"),
+            new BlogPost("Mockito Cheatsheet"));
+    BlogRepository blogRepository = Mockito.mock(BlogRepository.class);
+    Mockito.when(blogRepository.getAllBlogPosts()).thenReturn(expected);
+    BlogPostService service = new BlogPostService(blogRepository);
+
+    // act
+    service.getAllBlogPosts();
+
+    // assert
+    Mockito.verify(blogRepository).getAllBlogPosts();
+}
+```
+
+# Verify a Stubbed Method Hasn't Been Called
+```java
+@Test
+public void getBlogPostById_withBlogPost_verifiesThatCorrectMethodWasCalled() {
+    // arrange
+    BlogRepository blogRepository = Mockito.mock(BlogRepository.class);
+    BlogPost expoected = new BlogPost("Spring for humans");
+    Mockito.when(blogRepository.getBlogPostById(1)).thenReturn(Optional.of(expoected));
+    BlogPostService service = new BlogPostService(blogRepository);
+
+    // act
+    service.getBlogPostById(1);
+
+    // assert
+    Mockito.verify(blogRepository, Mockito.never()).getBlogPostById(100);
+    Mockito.verify(blogRepository).getBlogPostById(1);
+}
+```
 
 ## Capturing Arguments
+```java
+@Test
+public void getBlogPostById_withBlogPost_verifiesCorrectArgumentPassed() {
+    // arrange
+    BlogRepository blogRepository = Mockito.mock(BlogRepository.class);
+    int expected = 1;
+    Mockito.when(blogRepository.getBlogPostById(expected))
+            .thenReturn(Optional.of(new BlogPost("Spring for humans")));
+    BlogPostService service = new BlogPostService(blogRepository);
+    ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(Integer.class);
+
+    // act
+    service.getBlogPostById(expected);
+    Mockito.verify(blogRepository).getBlogPostById(captor.capture());
+    int actual = captor.getValue();
+
+    // assert
+    assertEquals(expected, actual);
+}
+```
+
+# Conclusion
+Hopefully the snippets laid out here will help you quickly set up your mockito tests. The full examples can be seen [here on GitHub](https://github.com/Zinbo/blog-examples).
+
+Happy Coding!

@@ -5,7 +5,7 @@ const config = {
   siteLogo: '/logos/logo-1024.png', // Logo used for SEO and manifest.
   siteUrl: 'https://stacktobasics.com', // Domain of your website without pathPrefix.
   pathPrefix: '', // Prefixes all links. For cases when deployed to example.github.io/gatsby-advanced-starter/.
-  siteDescription: 'A blog on everything backend and mobile related.', // Website description used for RSS feeds/meta description tag.
+  siteDescription: 'Stack to Basics: Getting back to basics on complex topics', // Website description used for RSS feeds/meta description tag.
   siteRss: '/rss.xml', // Path to the RSS file.
   siteFBAppID: 'null', // FB Application ID for using app insights
   googleAnalyticsID: 'UA-165280193-1', // GA tracking ID.

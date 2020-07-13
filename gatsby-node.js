@@ -1,166 +1,90 @@
+/* Vendor imports */
 const path = require('path');
-const _ = require('lodash');
-const moment = require('moment');
-const siteConfig = require('./data/SiteConfig');
+/* App imports */
+const config = require('./config');
+const utils = require('./src/utils');
 
-exports.onCreateNode = ({ node, actions, getNode }) => {
-  const { createNodeField } = actions;
-  let slug;
-  if (node.internal.type === 'MarkdownRemark') {
-    const fileNode = getNode(node.parent);
-    const parsedFilePath = path.parse(fileNode.relativePath);
-    if (
-      Object.prototype.hasOwnProperty.call(node, 'frontmatter') &&
-      Object.prototype.hasOwnProperty.call(node.frontmatter, 'title')
-    ) {
-      slug = `/${_.kebabCase(node.frontmatter.title)}`;
-    } else if (parsedFilePath.name !== 'index' && parsedFilePath.dir !== '') {
-      slug = `/${parsedFilePath.dir}/${parsedFilePath.name}/`;
-    } else if (parsedFilePath.dir === '') {
-      slug = `/${parsedFilePath.name}/`;
-    } else {
-      slug = `/${parsedFilePath.dir}/`;
-    }
+exports.createPages = ({ actions, graphql }) => {
 
-    if (Object.prototype.hasOwnProperty.call(node, 'frontmatter')) {
-      if (Object.prototype.hasOwnProperty.call(node.frontmatter, 'slug'))
-        slug = `/${_.kebabCase(node.frontmatter.slug)}`;
-      if (Object.prototype.hasOwnProperty.call(node.frontmatter, 'date')) {
-        const date = moment(node.frontmatter.date, siteConfig.dateFromFormat);
-        if (!date.isValid)
-          console.warn(`WARNING: Invalid date.`, node.frontmatter);
-
-        createNodeField({
-          node,
-          name: 'date',
-          value: date.toISOString(),
-        });
-      }
-    }
-    createNodeField({ node, name: 'slug', value: slug });
-  }
-};
-
-exports.createPages = async ({ graphql, actions }) => {
   const { createPage } = actions;
-  const postPage = path.resolve('src/templates/post.js');
-  const tagPage = path.resolve('src/templates/tag.js');
-  const categoryPage = path.resolve('src/templates/category.js');
 
-  const markdownQueryResult = await graphql(
-    `
-      {
-        allMarkdownRemark {
-          edges {
-            node {
-              fields {
-                slug
-              }
-              frontmatter {
-                title
-                tags
-                categories
-                date
-              }
+  return graphql(`
+    {
+      allMarkdownRemark(sort: {order: DESC, fields: [frontmatter___date]}) {
+        edges {
+          node {
+            frontmatter {
+              path
+              tags
             }
+            fileAbsolutePath
           }
         }
       }
-    `
-  );
+    }    
+  `).then(result => {
+    if (result.errors) return Promise.reject(result.errors);
 
-  if (markdownQueryResult.errors) {
-    console.error(markdownQueryResult.errors);
-    throw markdownQueryResult.errors;
-  }
+    const { site, allMarkdownRemark } = result.data
 
-  const tagSet = new Set();
-  const categorySet = new Set();
+    /* Post pages */
+    allMarkdownRemark.edges.forEach(({ node }) => {
+      // Check path prefix of post
+      if (node.frontmatter.path.indexOf(config.pages.blog) !== 0) throw `Invalid path prefix: ${node.frontmatter.path}`
+      
+      createPage({
+        path: node.frontmatter.path,
+        component: path.resolve('src/templates/post/post.js'),
+        context: {
+          postPath: node.frontmatter.path,
+          translations: utils.getRelatedTranslations(node, allMarkdownRemark.edges)
+        }
+      })
+    })
 
-  const postsEdges = markdownQueryResult.data.allMarkdownRemark.edges;
+    const regexForIndex = /index\.md$/
+    // Posts in default language, excluded the translated versions
+    const defaultPosts = allMarkdownRemark.edges.filter(({ node: { fileAbsolutePath } }) => fileAbsolutePath.match(regexForIndex))
 
-  postsEdges.sort((postA, postB) => {
-    const dateA = moment(
-      postA.node.frontmatter.date,
-      siteConfig.dateFromFormat
-    );
+    /* Tag pages */
+    const allTags = [];
+    defaultPosts.forEach(({ node }) => {
+      node.frontmatter.tags.forEach(tag => {
+        if (allTags.indexOf(tag) === -1) allTags.push(tag)
+      })
+    })
 
-    const dateB = moment(
-      postB.node.frontmatter.date,
-      siteConfig.dateFromFormat
-    );
+    allTags
+    .forEach(tag => {
+      createPage({
+        path: utils.resolvePageUrl(config.pages.tag, tag),
+        component: path.resolve('src/templates/tag/tag.js'),
+        context: {
+          tag: tag
+        }
+      })
+    })
 
-    if (dateA.isBefore(dateB)) return 1;
-    if (dateB.isBefore(dateA)) return -1;
+    /* Archive pages */
+    const postsForPage = config.postsForArchivePage;
+    const archivePages = Math.ceil(defaultPosts.length / postsForPage);
+    for (let i = 0; i < archivePages; i++) {
 
-    return 0;
-  });
+      let posts = defaultPosts.slice(i * postsForPage, i * postsForPage + postsForPage);
+      let archivePage = i + 1;
 
-  postsEdges.forEach((edge, index) => {
-    if (edge.node.frontmatter.tags) {
-      edge.node.frontmatter.tags.forEach((tag) => {
-        tagSet.add(tag);
-      });
+      createPage({
+        path: utils.resolvePageUrl(config.pages.archive, archivePage),
+        component: path.resolve('src/templates/archive/archive.js'),
+        context: {
+          postPaths: posts.map(edge => edge.node.frontmatter.path),
+          archivePage: archivePage,
+          lastArchivePage: archivePages
+        }
+      })
+
     }
 
-    if (edge.node.frontmatter.categories) {
-      edge.node.frontmatter.categories.forEach((category) => {
-        categorySet.add(category);
-      });
-    }
+  })
 
-    const nextID = index + 1 < postsEdges.length ? index + 1 : 0;
-    const prevID = index - 1 >= 0 ? index - 1 : postsEdges.length - 1;
-    const nextEdge = postsEdges[nextID];
-    const prevEdge = postsEdges[prevID];
-
-    createPage({
-      path: edge.node.fields.slug,
-      component: postPage,
-      context: {
-        slug: edge.node.fields.slug,
-        nexttitle: nextEdge.node.frontmatter.title,
-        nextslug: nextEdge.node.fields.slug,
-        prevtitle: prevEdge.node.frontmatter.title,
-        prevslug: prevEdge.node.fields.slug,
-      },
-    });
-  });
-
-  // generate post listing
-  const postsPerPage = 6;
-  const numPages = Math.ceil(postsEdges.length / postsPerPage);
-  Array.from({ length: numPages }).forEach((_, i) => {
-    createPage({
-      path: i === 0 ? `/` : `/${i + 1}`,
-      component: path.resolve('./src/templates/index.js'),
-      context: {
-        limit: postsPerPage,
-        skip: i * postsPerPage,
-        numPages,
-        currentPage: i + 1,
-      },
-    });
-  });
-
-  // Generate link foreach tag page
-  tagSet.forEach((tag) => {
-    createPage({
-      path: `/tags/${_.kebabCase(tag)}/`,
-      component: tagPage,
-      context: {
-        tag,
-      },
-    });
-  });
-  // Generate link foreach category page
-  categorySet.forEach((category) => {
-    createPage({
-      path: `/${_.kebabCase(category)}/`,
-      component: categoryPage,
-      context: {
-        category,
-      },
-    });
-  });
-};
+}

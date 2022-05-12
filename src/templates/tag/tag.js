@@ -1,8 +1,7 @@
 /* Vendor imports */
 import React from 'react'
 import PropTypes from 'prop-types'
-import { graphql } from 'gatsby'
-import Img from 'gatsby-image'
+import {graphql} from 'gatsby'
 /* App imports */
 import Layout from '../../components/layout'
 import SEO from '../../components/seo'
@@ -15,8 +14,6 @@ const TagPage = ({ data, pageContext }) => {
   const tag = pageContext.tag
   const tagName = Config.tags[tag].name || Utils.capitalize(tag)
   const tagPagePath = Config.pages.tag
-  const tagImage = data.allFile.edges.find((edge) => edge.node.name === tag)
-    .node.childImageSharp.fluid
 
   return (
     <Layout>
@@ -29,9 +26,6 @@ const TagPage = ({ data, pageContext }) => {
       <div className={style.heading}>
         <div>
           <h1>{tagName}</h1>
-        </div>
-        <div className={style.cover}>
-          <Img fluid={tagImage} />
         </div>
       </div>
       <PostList posts={data.allMarkdownRemark.edges} />

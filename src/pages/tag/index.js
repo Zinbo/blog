@@ -1,8 +1,7 @@
 /* Vendor imports */
 import React from 'react'
 import PropTypes from 'prop-types'
-import { graphql, Link } from 'gatsby'
-import Image from 'gatsby-image'
+import {graphql, Link} from 'gatsby'
 /* App imports */
 import Layout from '../../components/layout'
 import SEO from '../../components/seo'
@@ -29,14 +28,6 @@ const Tag = ({ data }) => {
       <div>
         {tags.map((tag) => (
           <Link to={`/${tagPage}/${tag}`} className={style.card} key={tag}>
-            <div className={style.cover}>
-              <Image
-                fluid={
-                  data.allFile.edges.find((edge) => edge.node.name === tag).node
-                    .childImageSharp.fluid
-                }
-              />
-            </div>
             <div className={style.content}>
               <h2>{Config.tags[tag].name || Utils.capitalize(tag)}</h2>
               <p>{Config.tags[tag].description}</p>

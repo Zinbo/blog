@@ -74,5 +74,13 @@ module.exports = {
       description:
         'Kotlin is a cross-platform, statically typed, general-purpose programming language with type inference..',
     },
+    jackson: {
+      description:
+          'Jackson is a high-performance JSON processor for Java.'
+    },
+    json: {
+      description:
+          'JSON (JavaScript Object Notation) is an open standard file format and data interchange format that uses human-readable text to store and transmit data objects consisting of attribute–value pairs and arrays (or other serializable values).'
+    }
   },
 }

@@ -4,7 +4,7 @@ tags: [java, spring-boot, spring-cloud]
 date: 2022-07-13T18:25:44.226Z
 path: blog/correlation-ids
 cover: ./preview.jpg
-excerpt: How to use subtypes and inheritance with Jackson to automatically convert JSON to the right sub class
+excerpt: How to use correlation IDs to easily track successful flows and errors throughout your services
 ---
 
 # Overview

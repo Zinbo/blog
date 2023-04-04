@@ -89,11 +89,11 @@ module.exports = {
         "spring-cloud": {
             description: 'Spring Cloud provides tools for developers to quickly build some of the common patterns in distributed systems (e.g. configuration management, service discovery, circuit breakers, intelligent routing, micro-proxy, control bus, one-time tokens, global locks, leadership election, distributed sessions, cluster state).'
         },
-        nextjs: {
-            description: "Next.js is an open-source web development framework created by Vercel enabling React-based web applications with server-side rendering and generating static websites."
-        },
         vercel: {
             description: "Vercel is an American cloud platform as a service company. The company maintains the Next.js web development framework."
+        },
+        nextjs: {
+            description: 'Next.js is an open-source web development framework providing React-based web applications with server-side rendering and static website generation. '
         }
     },
 }

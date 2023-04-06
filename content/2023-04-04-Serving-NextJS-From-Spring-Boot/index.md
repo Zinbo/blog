@@ -528,3 +528,5 @@ In this post we have learnt how to generate static assets for Next.js and serve 
 We have learnt about some of the common pitfalls with this approach and found ways to get around them.  
 We have also learnt the best way to do local development when using this approach by using Next.js Rewrites.  
 Finally, we have learnt about some of the limitations of using the Export feature in Next.js. 
+
+All of the code from this post can be found [here](https://github.com/Zinbo/spring-boot-nextjs-demo).

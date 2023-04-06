@@ -753,7 +753,7 @@ We'll start by adding a new component under our `component` directory called `Se
 `Search.tsx` should contain the following:
 ```tsx
 import {Box} from "@mui/system";
-import {Button, FormControl, InputLabel, MenuItem, Select, TextField} from "@mui/material";
+import {Button} from "@mui/material";
 import Paper from "@mui/material/Paper";
 import React, {useEffect, useState} from "react";
 import {useRouter} from "next/router";
@@ -1589,44 +1589,294 @@ is deployed in production mode it will be much faster as each page will be stati
 ### Add link on landing page
 Finally, let's add a link to our `/cities` page from the landing page.
 
-## Adding a header and a footer to our landing page
+Open `index.tsx` and add the following under the `<Search/>` element:
+```tsx
+<Box sx={{m: 2, mt: 1.8, display: 'flex', flexDirection: 'column'}}>
+  <Link href={`/cities`} passHref>
+    <Button sx={{alignSelf: 'center'}} variant="outlined" component="a">See all cities</Button>
+  </Link>
+</Box>
+```
 
-## Picking Images for the app
-- unsplash
-- flaticon
+Going to `http://localhost:3000` will now show the following:
+![](./resources/landing-page-4.png)
 
-## Adding a sitemap
-- next-sitemap
+## Adding the finishing touches
+if we want to deploy this application to the public then there are a few finishing touches that we can add to make it more professional.  
+We'll go over these in this section.
+
+### Adding an icon
+Right now when you open your application at `http://localhost:3000` you'll notice that the favicon (the little icon that appears on the tab in your browser) 
+is set to NextJS.s logo.  
+We should change this to be the icon for our website.  
+
+There are many places to get free assets, but one place that I have used is [flaticon.com](https://www.flaticon.com). 
+For this website we'll use the icon found [here](https://www.flaticon.com/free-icon/pass_1633103?term=exam+pass&page=1&position=4&origin=search&related_id=1633103).  
+Favicons have a size of 32x32, so download the icon as a 32x32 png.  
+To use this as a favicon we need to have it as a `.ico` file. Again, there are numerous ways to do this convertion, one way is [here](https://image.online-convert.com/convert-to-ico).
+
+Once we have our `favicon.ico` file, you need to replace the existing one in the `public` directory.
+
+Once you've done this, go back to `http://localhost:3000`. You should see that the icon has changed on the tab:
+![](./resources/tab.png)
+
+### Adding a sitemap and robots.txt
+The next thing we'll want to do is add a sitemap and a robots.txt. Sitemaps tell Google (or any search engine) what pages can be crawled on your website. The robots.txt file tells Google how your website should be crawled.  
+We can automatically generate these using `next-sitemap`, which will add all of our static pages for us.
+
+First, we must add a file called `next-sitemap.config.js` to the root directory. This file should contain the following:
+```js
+/** @type {import('next-sitemap').IConfig} */
+const config = {
+    siteUrl: process.env.SITE_URL || 'https://yourdomainname.com',
+    generateRobotsTxt: true, // (optional)
+    // ...other options
+}
+module.exports = config
+```
+This sets up the config for `next-sitemap`. You'll notice that the site URL defaults to `https://yourdomainname.com`. Leave that as it is for now, we'll come back to that later.
+
+Next, let's add the `next-sitemap` dependency:  
+```shell
+npm install next-sitemap
+```
+
+Next, we must add a `postbuild` step to our `package.json` file to generate the sitemap:
+```json
+    "build": "next build",
+    "postbuild": "next-sitemap",
+```
+
+Now, let's generate it! Stop your instance of `npm run dev` if it's still running and run `npm run build`.
+
+Once the build is done you should see that 3 files have been generated in your `public` folder.  
+robots.txt:  
+```
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://yourdomainname.com
+
+# Sitemaps
+Sitemap: https://yourdomainname.com/sitemap.xml
+```
+
+sitemap.xml:  
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<sitemap><loc>https://yourdomainname.com/sitemap-0.xml</loc></sitemap>
+</sitemapindex>
+```
+
+sitemap-0.xml:  
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:mobile="http://www.google.com/schemas/sitemap-mobile/1.0" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+  <url><loc>https://yourdomainname.com</loc><lastmod>2023-04-06T12:36:31.039Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://yourdomainname.com/cities</loc><lastmod>2023-04-06T12:36:31.039Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://yourdomainname.com/pass-rates</loc><lastmod>2023-04-06T12:36:31.039Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://yourdomainname.com/pass-rates/aberdeen</loc><lastmod>2023-04-06T12:36:31.039Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://yourdomainname.com/pass-rates/bangor</loc><lastmod>2023-04-06T12:36:31.039Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://yourdomainname.com/pass-rates/bath</loc><lastmod>2023-04-06T12:36:31.039Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://yourdomainname.com/pass-rates/birmingham</loc><lastmod>2023-04-06T12:36:31.039Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+...
+```
+
+### Making it a Progressive Web App (PWA)
+We can quite easily set up our application as a PWA with NextJS. In case you haven't heard of PWAs before you can read about them [here](https://web.dev/learn/pwa/), but the short answer is that 
+they allow us to provide a consistent experience across a variety of devices, and allow users to install our web app on their device as if it were a native Android or iOS app.
+
+The first thing we'll do is install `next-pwa`:  
+```shell
+npm install next-pwa
+```
+We then need to change our `next.config.js` file to use the `next-pwa` plugin:  
+```js
+/** @type {import('next').NextConfig} */
+const withPWA = require('next-pwa')({
+  dest: 'public'
+})
+
+const nextConfig = withPWA({
+  reactStrictMode: true,
+  swcMinify: true,
+})
+
+module.exports = nextConfig
+```
+ 
+We then need to create our `manifest.json`. 
+The easiest way to do this is to generate one using [simicart](https://www.simicart.com/manifest-generator.html/).
+Before you do this you'll need to download the icon at size 512 [here](https://www.flaticon.com/free-icon/pass_1633103?term=exam+pass&page=1&position=4&origin=search&related_id=1633103).
+
+Add the following properties to the Simicart manifest generator:
+![](./resources/manifest.png)
+
+Click "Generate Manifest" and you'll download a zip. Extract this zip to your `public` directory and rename `manifest.webmanifest` to `manifest.json`.  
+Your manifest.json should look like this:  
+```json
+{
+  "theme_color": "#008000",
+  "background_color": "#FFFFFF",
+  "display": "standalone",
+  "scope": "/",
+  "start_url": "/",
+  "name": "Best Driving Test Pass Rates Near Me",
+  "short_name": "Driving Test Pass Rates",
+  "description": "Give yourself the best opportunity to pass your driving test. Find the driving test centre that has the best pass rate near you. Find in locations such as Manchester, London, Birmingham, Newcastle, Leeds, Wales, Scotland, anywhere in the UK.",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-256x256.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
+```
+
+Finally, let's add some more tags to our `<Head>` element in `_app.ts` file to provide more info on our PWA for different devices. Replace the `<Head>` element with the following:  
+```tsx
+<Head>
+  <title>Best Driving Test Pass Rates Near Me</title>
+  <meta name="description"
+        content="Give yourself the best opportunity to pass your driving test. Find the driving test centre that has the best pass rate near you. Find in locations such as Manchester, London, Birmingham, Newcastle, Leeds, Wales, Scotland, anywhere in the UK."/>
+  <meta name='application-name' content='Best Driving Test Pass Rates Near Me' />
+  <link rel="icon" href="/favicon.ico"/>
+
+  {/* iOS */}
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="PWA App" />
+  <meta name="format-detection" content="telephone=no" />
+
+  {/* Android */}
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#008000" />
+
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" />
+
+</Head>
+```
+
+Now let's run `npm run build`. Once that is done you'll notice that you have 2 new files in the `public` directory, `sw.js` and `workbox-<guid>.js`.  
+These files are required for PWAs, more on these can be read about [here](https://developer.chrome.com/docs/workbox/).
+
+Finally, run `npm run start` to start up our built app.
+
+Go to `http://localhost:3000/`, you should now see an option to install the application:  
+![](./resources/landing-page-5.png)
+
+*Note:* I had to change the `display` property to `standalone` in `manifest.json` before chrome would allow me to install the app as PWA. You might need to do the same.
 
 ## Deploy the application
-- vercel intro
-- walkthrough deploying via Vercel from github repo
+Next, let's deploy our application with Vercel.  
+NextJS is made by Vercel, so naturally it's easy to deploy applications on their platform. It's also free for personal projects!
 
-## Add document.tsx file
+Go to [vercel.com](https://vercel.com/) and sign up with your GitHub account.  
+Then go to the [Dashboard](https://vercel.com/dashboard), click the "Add New..." button, and then project.  
+You then need to click "Import" for your project:  
+![](./resources/vercel-1.png)
+Leave all the fields on the next screen as they are and click "Deploy".
 
-## Optional: Buy a domain name
-- Google domains
-- Link domain to app in vercel.
-- Set up email forwarding
+You'll then be greeted with a screen that shows the progress of the deployment:  
+![](./resources/vercel-2.png)
 
-## Optional: Tweet it!
+Once that is done, select your project. You should see a screen previewing the landing page of the app:  
+![](./resources/vercel-3.png)
+
+Click the "Visit" button, and you should be brought to your website!
+
+At this point you now have a domain. For example, mine is `public-data-demo.vercel.app`. 
+You can now go and change your `next-sitemap.config.js` file to point to this domain if you wish.  
+If you would rather get your own domain with `vercel.app` then hang on till the next section!
+
+### Analytics
+One of the great things with Vercel is its analytics. We can enable these for free by clicking the ![](./resources/analytics-1.png) button.  
+Then click the Enable button to enable analytics:  
+![](./resources/analytics-2.png)
+Note that you can only have analytics for free for one project at a time.  
+
+This shows you some really useful information about your site and gives you an overall experience score, based on multiple factors:    
+![](./resources/analytics-3.png)
+
+If you have a low score this can negatively impact SEO with Google, so it's always worth knowing how your site is performing.
+
+### Buy a domain name
+You may want to have your own domain name that isn't associated with vercel. 
+Domains can vary wildly in price depending on how popular the domain is. 
+
+I usually get my domains from [Google Domains](https://domains.google.com/) which is quick and easy to use. Say for example we 
+wanted a domain related to the phrase `public-data-demo`. We can search for this in Google Domains and buy one for £10 a year:  
+![](./resources/domain-1.png)
+
+We won't be walking through how to add a custom domain here, however I can assure you that is it very easy to do with Google Domains and Vercel. 
+You can find a guide on how to do this [here](https://vercel.com/docs/concepts/projects/domains/add-a-domain).
+
+### Email Forwarding
+One thing that you may want to do is to be able to send emails where the email address is your own domain. Whilst creating a custom email 
+address with Google Workspace costs money, a free alternative is to set up email forwarding.  
+
+You can create an email address with your domain name, e.g. `hello@drivingpassrate.co.uk` and then forward it to your personal email address.  
+To do this, go to your domain in Google Domains -> Email and scroll down to the "Email forwarding" section. Click `Add email alias` 
+and enter your desired email address at your domain and your personal email address that you want emails forwarded to.  
+![](./resources/domain-2.png)
+
+## Add Twitter Support
 - benefits of tweeting
+- Add in twitter meta tags
+
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:url" content="https://yourdomain.com" />
+<meta name="twitter:title" content="PWA App" />
+<meta name="twitter:description" content="Best PWA App in the world" />
+<meta name="twitter:image" content="https://yourdomain.com/icons/android-chrome-192x192.png" />
+<meta name="twitter:creator" content="@DavidWShadow" />
+
 ### Add twitter card
 - Code in document file
 - Check that it works?
 - Show how it will appear in twitter
 
-## Optional: Monitise your app with google ads
-- Walk through adding google scripts
-- Walk through adding app through google ads website
+## Add Facebook Support
+Open Graph Meta Tags
+https://ahrefs.com/blog/open-graph-meta-tags/
 
-## Optional: Add google analytics to track users on your website
+<meta property="og:type" content="website" />
+<meta property="og:title" content="PWA App" />
+<meta property="og:description" content="Best PWA App in the world" />
+<meta property="og:site_name" content="PWA App" />
+<meta property="og:url" content="https://yourdomain.com" />
+<meta property="og:image" content="https://yourdomain.com/icons/apple-touch-icon.png" />
+
+
+## Add Google Analytics to track users on your website
 - walkthrough adding app
 - Show screenshot of my analytics dashboard
 - scripts to add
 
-## Optional: Add Open Graph Meta Tags
-https://ahrefs.com/blog/open-graph-meta-tags/
+## Monitise your app with google ads
+- Walk through adding google scripts
+- Walk through adding app through google ads website
 
 ### Adding a privacy policy
 - GDPR with google

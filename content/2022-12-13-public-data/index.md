@@ -1811,7 +1811,9 @@ You can now go and change your `next-sitemap.config.js` file to point to this do
 If you would rather get your own domain with `vercel.app` then hang on till the next section!
 
 ### Analytics
-One of the great things with Vercel is its analytics. We can enable these for free by clicking the ![](./resources/analytics-1.png) button.  
+One of the great things with Vercel is its analytics. We can enable these for free by clicking the heartbeat button, it looks like this:
+![](./resources/analytics-1.png)
+
 Then click the Enable button to enable analytics:  
 ![](./resources/analytics-2.png)
 Note that you can only have analytics for free for one project at a time.  
@@ -1841,38 +1843,125 @@ To do this, go to your domain in Google Domains -> Email and scroll down to the 
 and enter your desired email address at your domain and your personal email address that you want emails forwarded to.  
 ![](./resources/domain-2.png)
 
-## Add Twitter Support
-- benefits of tweeting
-- Add in twitter meta tags
+## Adding Social Media Support
+We can quite easily add support to our application so that any time someone links a page to our site from social media it will show a nice card with a title, description, and an image.  
+Here we'll focus on Twitter and Facebook.
 
+### Add Twitter Support
+To do this, add the following tags to `_app.tsx` in `<Head>`:  
+```html
 <meta name="twitter:card" content="summary" />
-<meta name="twitter:url" content="https://yourdomain.com" />
-<meta name="twitter:title" content="PWA App" />
-<meta name="twitter:description" content="Best PWA App in the world" />
-<meta name="twitter:image" content="https://yourdomain.com/icons/android-chrome-192x192.png" />
-<meta name="twitter:creator" content="@DavidWShadow" />
+<meta name="twitter:url" content="https://public-data-demo.vercel.app" />
+<meta name="twitter:title" content="Best Driving Test Pass Rates Near Me" />
+<meta name="twitter:description" content="Give yourself the best opportunity to pass your driving test. Find the driving test centre that has the best pass rate near you. Find in locations such as Manchester, London, Birmingham, Newcastle, Leeds, Wales, Scotland, anywhere in the UK." />
+<meta name="twitter:image" content="https://public-data-demo.vercel.app/icon-512x512.png" />
+<meta name="twitter:creator" content="@shanepjennings" />
+```
+Make sure to change the URL, image, and creator tags to reflect your own!  
 
-### Add twitter card
-- Code in document file
-- Check that it works?
-- Show how it will appear in twitter
+Using this link in a tweet will now show a card, like this:  
+![](./resources/twitter-1.png)
 
-## Add Facebook Support
-Open Graph Meta Tags
-https://ahrefs.com/blog/open-graph-meta-tags/
-
+### Add Facebook Support
+To do this, add the following tags to `_app.tsx` in `<Head>`:
+```html
 <meta property="og:type" content="website" />
-<meta property="og:title" content="PWA App" />
-<meta property="og:description" content="Best PWA App in the world" />
-<meta property="og:site_name" content="PWA App" />
-<meta property="og:url" content="https://yourdomain.com" />
-<meta property="og:image" content="https://yourdomain.com/icons/apple-touch-icon.png" />
+<meta property="og:title" content="Best Driving Test Pass Rates Near Me" />
+<meta property="og:description" content="Give yourself the best opportunity to pass your driving test. Find the driving test centre that has the best pass rate near you. Find in locations such as Manchester, London, Birmingham, Newcastle, Leeds, Wales, Scotland, anywhere in the UK." />
+<meta property="og:url" content="https://public-data-demo.vercel.app" />
+<meta property="og:image" content="https://public-data-demo.vercel.app/icon-512x512.png" />
+```
+
+Make sure to change the URL and image tags to reflect your own!
+
+Using this link in a Facebook post will now show a card, like this:  
+![](./resources/facebook-1.png)
+
+### Testing Social Media Support
+If you want to test how your website will appear on various social media platforms from various devices you can use the [Open Graph Simulator](https://en.rakko.tools/tools/9/).  
+Enter your website URL and you'll be shown how your website would appear on these platforms:  
+![](./resources/social-media-1.png)
+
+## Tracking Website Analytics
+Once your website is live you might be asking yourself some of these questions: 
+- How can I see if anyone is even using my website?
+- How can I see if my website shows up in Google Search?
+
+To answer these questions we'll be using 2 Google products: Google Analytics and Google Search Console.
 
 
-## Add Google Analytics to track users on your website
-- walkthrough adding app
-- Show screenshot of my analytics dashboard
-- scripts to add
+## Add Google Analytics
+Google Analytics is a great tool for assessing how your website is performing. It tracks how many users have visited your website, where in the world they are from, which pages are the most popular, and a lot more! 
+Adding it is easy and free.
+
+If you're new to Google Analytics then first go [here](https://analytics.google.com/analytics/web/provision/#/provision) and click the "Start measuring" button.
+This will prompt you to create an account and a property. if you're a single developer then usually you'll have 1 account to encompass all of your websites, and have a property per website.
+
+Once this is done you should be given the Measurement ID that you'll need to enable analytics collections for your website.    
+If not, then click on the Gear icon on the bottom left of the screen, click "Data Streams" under the property column, and select the "Web" tab:  
+![](./resources/g-analytics-1.png)
+
+Once here, click the `>` button, which will show all the stream details. What you need is the Measurement ID:  
+![](./resources/g-analytics-2.png)
+
+Once you have this you can add the Google Analytics script to your website.  
+
+Go to `_app.tsx` and add the following, before the `<Head>` element:  
+```tsx
+<Script id="google-tag-manager" strategy="lazyOnload"
+        src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXX"/>
+<Script id="google-analytics" strategy="lazyOnload">
+  {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+
+                gtag('config', 'G-107ZE4LZ3R', {
+                    page_path: window.location.pathname,
+                    }); 
+            `}
+
+</Script>
+```
+
+Once this has been added to your website try visiting your website a few times and click around onto various pages.  
+Eventually you'll start seeing data in the Google Analytics console:  
+![](./resources/g-analytics-3.png)
+
+I would recommend having a play around with the different reports and analytics. It's really useful!
+
+## Google Search Console
+Another aspect that we may want to track is how much of our website has been crawled by Google.  
+To do this, we can use Google Search Console, which is also free.  
+Go [here](https://search.google.com/search-console) and enter your website's domain under the Domain box on the left, and click continue.  
+![](./resources/search-1.png)
+
+You'll be shown a screen asking you to verify domain ownership, like this:
+![](./resources/search-3.png)
+
+We need to do this before we can use Google Search Console.  
+Unfortunately we cannot do this with the basic Vercel domain we've been given for free (if someone finds a way to do this let me know!) so this step relies 
+on you having bought a domain in the previous step.  
+Depending on what domain provider you used, the steps will be different.  
+
+If you used Google Domains you can do this by:
+- Opening your domain in Google Domains
+- Select "DNS" from the left hand sidebar
+- Click "Manage custom records"
+- Click "Create new record"
+  - Host name: leave blank
+  - Type: A
+  - TTL: Leave as default
+  - Data: The text provided by Google Search console, starting with "google-site-verification="
+    
+![](./resources/search-2.png)
+
+Once you have done this, click the "verify" button on Google Search Console. It may take some time to reflect the change, so you may have to come back to this later.
+
+- Talk about the benefits
+- Talk about crawling, adding own pages, etc.
+- See how we perform on google? Show about how to search.
+- List free website to check keywords.
 
 ## Monitise your app with google ads
 - Walk through adding google scripts

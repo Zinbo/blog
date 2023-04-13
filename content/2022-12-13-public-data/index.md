@@ -2060,21 +2060,48 @@ Here you can type in a number of keywords related to your website, so that you c
 
 We can see here that people are searching for "mill hill driving test centre pass rate", with around 100 searches per month. Based on this it may be worth adding a page specifically for mill hill to our website.
 
-## Monitise your app with google ads
-- Walk through adding google scripts
-- Walk through adding app through google ads website
+## Monitise your Website
+There are numerous ways that you can earn income from a website. For example, you could add ads, you could do affiliate marketing, you could charge a subscription fee or a premium fee, the list goes on!  
+What we'll focus on here is adding ads - specifically Google Adsense.
 
-### Adding a privacy policy
-- GDPR with google
-- find website used to make privacy policy
-- show how to add it in google adds and app
+Google Adsense is one way that you can add ads to your website to make some money.  
+To get started, go to [adsense.google.com/start/](https://adsense.google.com/start/) and sign up.  
+Once you're at your dashboard, click on "Sites" on the left-hand sidebar and click "New site".  
 
-## Demo own project
-- Link to website
-- GitHub repo
+You'll then be greeted with this screen:  
+![](./resources/money-1.png)  
+
+This shows you the code that you need to add to your website to start showing ads.  
+Go back to `_app.tsx` and add the following before the `<Head>` element:  
+```tsx
+<Script
+src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXX"
+crossOrigin="anonymous"/>
+```
+
+Once this has been added, go back to the Google AdSense window, tick "I've placed the code" and click "Next". You can then click "Request review". The review can take a while, but in the meantime we can decide on our ad placement.  
+
+With Google AdSense you can either:
+- let it decide where to place ads
+- decide yourself where ads should be placed.
+
+In this post we're only going to cover letting Google AdSense place the ads for us.  
+Go back to the dashboard and click "Ads" in the left-hand sidebar. Next, click the edit icon (looks like a pencil) for your website.  
+![](./resources/money-2.png)
+
+You should be shown a screen containing your websites landing page. Select the "Auto ads" selector to turn on ads. This can sometimes be a bit fiddly and not show ads right away. 
+You can try clicking "Apply to site" and then coming back to this page to see if ads are now shown. You should see some ad placeholders added to your site, like so:    
+![](./resources/money-2.png)  
+
+If you're not happy with the ad placement you can always place the ads yourself. A guide on how to do this can be found [here](https://support.google.com/adsense/answer/9274025?sjid=1729009541156227832-EU). 
+
+Please note that ads won't appear immediately. Your website will need to pass the review first, which can take up to two weeks.
 
 # Conclusion
 - Link to website
 - GitHub repo
 - Give conclusion on what they learned.
 - Extensions, tests, etc.?
+
+# To do
+- sprinkle references to my website all over.

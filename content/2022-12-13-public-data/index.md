@@ -1834,6 +1834,8 @@ wanted a domain related to the phrase `public-data-demo`. We can search for this
 We won't be walking through how to add a custom domain here, however I can assure you that is it very easy to do with Google Domains and Vercel. 
 You can find a guide on how to do this [here](https://vercel.com/docs/concepts/projects/domains/add-a-domain).
 
+**Once your domain has been added make sure to update your robots.txt file to reflect your new domain name!** We'll get into why this is important in a later section.
+
 ### Email Forwarding
 One thing that you may want to do is to be able to send emails where the email address is your own domain. Whilst creating a custom email 
 address with Google Workspace costs money, a free alternative is to set up email forwarding.  
@@ -1889,7 +1891,6 @@ Once your website is live you might be asking yourself some of these questions:
 
 To answer these questions we'll be using 2 Google products: Google Analytics and Google Search Console.
 
-
 ## Add Google Analytics
 Google Analytics is a great tool for assessing how your website is performing. It tracks how many users have visited your website, where in the world they are from, which pages are the most popular, and a lot more! 
 Adding it is easy and free.
@@ -1930,10 +1931,21 @@ Eventually you'll start seeing data in the Google Analytics console:
 
 I would recommend having a play around with the different reports and analytics. It's really useful!
 
-## Google Search Console
-Another aspect that we may want to track is how much of our website has been crawled by Google.  
-To do this, we can use Google Search Console, which is also free.  
-Go [here](https://search.google.com/search-console) and enter your website's domain under the Domain box on the left, and click continue.  
+## SEO 
+You might have heard of SEO before. It stands for Search Engine Optimisation, and it's all about making your website appear in search engine results (such as Google). 
+The higher your website in the list of search results, the more chance you have of someone using your website. If you have monitised your website (which we'll discuss later) then better SEO can equal more income.
+
+There are many tools related to SEO out there. Some of them free, some of them not. Some tools can help you with what's called keyword research, which can help you decide on the best words to use on your website such that
+you're more likely to come up when people search for terms.  
+
+In this section we'll be looking at Google Search Console, which like all other tools used in this blog is free.  
+There are 2 features that I find the most useful with Google Search Console for SEO:
+1. Indexing: You can see if Google has indexed pages from your website. Pages will only appear in a Google search if they have been indexed.
+2. Performance: You can see how many times your website has appeared in a Google search, how many times people have clicked on a link to your website, what people searched for, and more.
+
+### Setting up Google Search Console
+
+To get started go [here](https://search.google.com/search-console) and enter your website's domain under the Domain box on the left, and click continue.  
 ![](./resources/search-1.png)
 
 You'll be shown a screen asking you to verify domain ownership, like this:
@@ -1958,10 +1970,95 @@ If you used Google Domains you can do this by:
 
 Once you have done this, click the "verify" button on Google Search Console. It may take some time to reflect the change, so you may have to come back to this later.
 
-- Talk about the benefits
-- Talk about crawling, adding own pages, etc.
-- See how we perform on google? Show about how to search.
-- List free website to check keywords.
+### Indexing
+The most important aspect to check first is indexing. Now if you have only just deployed your website it is very likely that Google has not yet indexed your website.  
+Google does this by using what's known as a "crawler" which finds your `robots.txt` file, which we added earlier. The `robots.txt` file tells the crawler what URLs it can access to crawl.  
+Our `robots.txt` file contains a link to our `sitemap.xml` file, which points to our `sitemap-0.xml` file, which contains the locations of all of our static pages.  
+The crawler will find this, and then start indexing each of these pages.  
+It is important to note that this process can take **months**, especially if the website isn't appearing in a lot of Google search results. However, there are ways that you can speed up the process, which we'll discuss further down.
+
+You can see if Google has found your sitemap.xml file by clicking on "Sitemaps" on the left-hand sidebar. If your sitemap has been found then you will see it here.   
+![](./resources/search-4.png)
+
+If your sitemap hasn't been found then you can speed up this process by submitting a link to your sitemap using the `Add a new sitemap` box. This will add the sitemap to crawler's queue.  
+
+Once your sitemap has been discovered then Google will start automatically discovering pages. In the screenshot above you'll see under the "Discovered pages" heading that 67 pages have been
+discovered on my website, [drivingpassrate.co.uk](https://drivingpassrate.co.uk/).
+
+Once you have some pages appearing you can dig into this deeper by clicking on "Pages" on the left-hand sidebar. This will show you, out of all the discovered pages, which have been indexed and which have yet to be indexed.  
+![](./resources/search-5.png)
+
+In the image above you can see how pages on my website have been indexed over time.  
+At the bottom of this page we can see more details on why some pages have not been indexed.  
+![](./resources/search-6.png)
+
+Here we can see that Google has discovered 15 pages (by using the sitemap), but has not yet crawled or indexed them, and has crawled 4 pages but has not yet indexed them.  
+We can drill deeper again to see which pages haven't been indexed.  
+![](./resources/search-7.png)
+
+I mentioned that this process can take months, and you can see proof of that in the image above, where [drivingpassrate.co.uk/pass-rates/derby](https://drivingpassrate.co.uk/pass-rates/derby) was crawled in August last year but still hasn't been indexed.
+
+We can speed up this process by forcing our pages into Google's indexing queue. To do this, search for your page in the search bar at the top that says "Inspect any URL". 
+Note that you need to search for the **whole** URL, including the HTTPS. The search is also case-sensitive so make sure that is also correct.  
+Once you've searched for a page you can check that that page exists by clicking the "Test Live URL" button. 
+If you've entered the wrong URL then you'll see "Page cannot be indexed: Not found (404)", like this:  
+![](./resources/search-8.png)  
+
+If you've entered the correct URL then you should see "Page can be indexed", like this:  
+![](./resources/search-9.png)  
+
+To force the page into the indexing queue click the "Request Indexing" button.  
+![](./resources/search-10.png)  
+
+You should then see a popup stating that the URL was added to the queue. Note that it also says that submitting the same page multiple times will not change the queue position, so don't bother spamming the "Requeset Indexing" button!  
+Note that even though your page has been added to the queue it can still take a long time to be indexed! But it will be faster than waiting for the crawler to automatically crawl it.  
+Please also note that you can only request a small number of pages to be indexed at one time before your quota is exceeded. This is around 10 pages per day. Once you reach this, you'll see this popup when trying to request indexing:    
+![](./resources/search-11.png)  
+
+### Performance
+The next great feature of Google Search Console is analysing search performance. This shows us details such as:
+- How many people have seen our results when searching in Google
+- How many people have clicked on one of results when searching in Google
+- What people were searching for when they saw our results in Google
+And more.
+
+To see all this, click on "Performance" on the left-hand sidebar. At the top of the page you will see a graph like this:    
+![](./resources/search-12.png)  
+
+Here we can see a number of metrics:  
+- Total clicks: how many times a user clicked through to your site. 
+- Total impressions: how many times a user saw a link to your site in search results. 
+- Average CTR: the percentage of impressions that resulted in a click.
+- Average position: the average position of your site in search results, based on its highest position whenever it appeared in a search.
+
+At the bottom of the page we can see a table which shows us:
+- the queries that people searched for
+- the pages that appeared in the search results
+- the countries that people were searching from
+- The devices used by people to search
+- The search appearance
+- The dates our pages appeared in search results
+
+Each result set show us the number of impressions and the position of our website in the search results.  
+![](./resources/search-13.png)  
+
+We can drill further into any of these results. For example, by clicking the top result "winchester pass rate" we can see the page that appeared in the search results, as well as all the other metrics such as country and device.  
+![](./resources/search-14.png)  
+
+### More features
+There are more features of Google Search Console which I won't cover here, such as core web vitals (which we also saw in Vercel Analytics). I would encourage you to have a play with it yourself and see what it can do for you!
+
+### Keyword Research
+It's worth touching on the topic of keyword research as we are discussing SEO. In Google Search Console we were able to see what keywords people searched for when our website came up as a result. However, we don't know what similar keywords 
+people searched for where our website did not appear in the results.
+Keyword research is something you can do to find out what users are searching for before you even start your website. That way you can know which keywords you should be adding and targeting on your website to improve SEO.  
+
+Keyword research is a broad topic and I won't be going into a lot of detail here, but it's worth mentioning that there are free tools you can use to do this keyword research. One example is [Ahrefs Ketword Generator](https://ahrefs.com/keyword-generator).
+
+Here you can type in a number of keywords related to your website, so that you can find what people are searching for related to those keywords. For example, if I search for the terms "driving test centre pass rate", then I'll get the following results:    
+![](./resources/search-15.png)  
+
+We can see here that people are searching for "mill hill driving test centre pass rate", with around 100 searches per month. Based on this it may be worth adding a page specifically for mill hill to our website.
 
 ## Monitise your app with google ads
 - Walk through adding google scripts

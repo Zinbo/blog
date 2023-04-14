@@ -93,7 +93,10 @@ module.exports = {
             description: "Vercel is an American cloud platform as a service company. The company maintains the Next.js web development framework."
         },
         nextjs: {
-            description: 'Next.js is an open-source web development framework providing React-based web applications with server-side rendering and static website generation. '
+            description: 'Next.js is an open-source web development framework providing React-based web applications with server-side rendering and static website generation.'
+        },
+        SEO: {
+            description: 'Search engine optimization is the process of improving the quality and quantity of website traffic to a website or a web page from search engines.'
         }
     },
 }

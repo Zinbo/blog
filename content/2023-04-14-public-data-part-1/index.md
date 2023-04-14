@@ -1,6 +1,6 @@
 ---
 title: "Creating a Project using Public Data for Fun and Profit: A Step-by-Step Tutorial - Part 1"
-tags: [react, nextjs, vercel]
+tags: [react, nextjs, vercel, SEO]
 date: 2023-04-14T18:00:00.000Z
 path: blog/web-app-public-data-part-1
 cover: ./preview.jpg

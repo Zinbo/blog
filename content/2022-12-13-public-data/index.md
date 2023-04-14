@@ -9,12 +9,19 @@ excerpt: How to easily create a web app with public data to show off your skills
 
 # Introduction
 In this post, we'll explore how to create an engaging website using public data that you can monetize and use to impress potential employers. 
-You'll learn the benefits of developing a personal project using public data and follow an example of building an app from scratch to deployment, complete with its own domain.
+You'll learn the benefits of developing a personal project using public data and follow an example of building an app from scratch to deployment.
 
-# Why should I create my own personal project?
+Throughout this blog we'll walk through a step-by-step guide on how to build a website that allows users to search for driving test centres near them and show which centres have the best pass rates.
+We'll be using the UK Government's public data on driving test centre pass rates.
+I built this app because I'm learning to drive, and I wanted to know which test centre would give me the best chance of passing.
+
+All the code referenced in this post can be found in my repo [here](https://github.com/Zinbo/public-data-demo).
+As well, you can find a live version of the application we build [here](https://drivingpassrate.co.uk/).
+
+## Why Should I Create My Own Personal Project?
 Developers create personal projects for several reasons, including showcasing their skills to potential employers, learning new technologies, having fun, and making a profit. Often, a project can fulfill all these reasons simultaneously. Building a personal project is one of the best ways to create a portfolio that can help you break into the software industry and land a job.
 
-# Why should I use public data?
+## Why Should I Use Public Data?
 If you're looking for project ideas, public data can be an excellent source of inspiration. Public data is easy to obtain, it's free, and when combined with other data, it can provide substantial value to users. Even presenting data in a user-friendly format can be a significant win, considering that public data is often not presented this way.
 
 Some examples of sources of public data are government and video games. 
@@ -27,26 +34,19 @@ If you're interested in web scraping, you can find a tutorial [here](https://www
 
 There are many other sources of public data, and the key is to choose data that interests you or solves a particular problem you're facing. That way you're much more likely to stick with the project!
 
-# Creating a Website That Shows the Driving Test Centres with the Best Pass Rates Near You
-In this section, we'll walk through a step-by-step guide on how to build a website that allows users to search for driving test centers near them and show which centers have the best pass rates. 
-We'll be using the UK Government's public data on driving test center pass rates. 
-I built this app because I'm learning to drive, and I wanted to know which test center would give me the best chance of passing.
-
-## The Requirements
+# The Requirements
 Before we begin, let's set out the requirements:
 - The user can see the best driving test centres around them, based on their postcode.
 - The user can see the best driving test centres around popular cities.
 - The user can see the Google Reviews rating for each test centre.
 - The user can easily see where the test centre is located on Google Maps.
 
-## Setting up the app
+# Set Up
 For this application, we'll use Next.js as the framework and Material UI for the design. If you haven't used Next.js before, don't worry. Most of it will be clear if you've used React before.
 
 I chose Next.js for its static site generation, which makes it lightning-fast. Since most of the data we use here is not dynamic, we can generate our pages at build time. 
-This not only makes the application load extremely fast, but it's also good for SEO (Search Engine Optimization), which is crucial if we want to monetize our app later. 
-Next.js has an excellent introduction to SEO, which you can find [here](https://nextjs.org/learn/seo/introduction-to-seo). It's also easy to host, as we'll see later.
-For this application we'll be using Next.JS as the framework and Material UI for the design.  
-If you haven't used Next.JS before don't worry. If you've ever used React before then the majority of it will be clear.
+This not only makes the application load extremely fast, but it's also good for SEO (which we'll cover later), which is crucial if we want to monetize our app later. 
+It's also easy to host, as we'll see later.
 
 Throughout this post, we'll explore how we can use Next.js for static site generation. However, you can read more about Next.js [here](https://nextjs.org/docs/getting-started).
 
@@ -63,11 +63,11 @@ Opening localhost:3000 should then show us the Next.js example page:
 ![](./resources/example-page.png)
 
 Your directory structure should look like this:
-![](./resources/directory-structure-1.png)
+![](./resources/folder-structure-1.png)
 
-## Getting the Data
+# Getting the Public Data
 
-### Acquiring Test Centre Data
+## Step 1: Acquiring Test Centre Data
 Please note that in this section I'll be deliberately brief on the details.
 This is partly because the point of this post isn't to copy what I did entirely, but rather to provide inspiration,
 but also because I don't want this post to be any longer than it needs to be. I leave the massaging of data as an exercise for the reader.
@@ -82,7 +82,7 @@ This document contains a tab for each year, with a record of the total pass rate
 As an example, we can see that Aberdeen North had a total pass rate of 48.2% for the year 2022-23.  
 Once you have this data, you can use your preferred scripting language to extract a list of each test centre name with its corresponding total pass rate.  
 
-### Retrieving Test Centre Location Data
+## Step 2: Retrieving Test Centre Location Data
 In order to calculate the distance between the user and each test centre, we need to determine the location of each test centre. 
 One way to accomplish this is by using the Google Maps Places API. While the API is not free, it offers 28,500 free map-loads per month, which should be more than sufficient for our needs.
 
@@ -96,7 +96,10 @@ We'll be using two endpoints of the Places API - `findplacefromtext` and `detail
 
 We can use the `findplacefromtext` endpoint to search for our test centres by name and retrieve a list of candidates with their corresponding name and place ID. 
 For example, when searching for the Mill Hill (London) driving test centre, you can query the following URL:
+```
 https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=Mill%20Hill%20(London)%20Driving%20Test%20Centre&inputtype=textquery&key=<YOUR API KEY>&locationbias=ipbias&fields=name,place_id
+```
+
 
 This query returns:
 ```json
@@ -112,7 +115,9 @@ This query returns:
 ```
 
 Next, we can use the place ID to retrieve all the details about that test centre using the `details` endpoint. For example, you can query the following URL to retrieve details for the Mill Hill (London) driving test centre:  
+```
 https://maps.googleapis.com/maps/api/place/details/json?place_id=ChIJXdhrutoWdkgRh_OPEmlGwmc&key=<YOUR API KEY>&fields=geometry,rating,url,user_ratings_total
+```
 
 This query returns:
 ```json
@@ -145,8 +150,8 @@ This query returns:
 
 For test centres where I got more than one candidate I hand-picked the right one - however you could write your own algorithm to programmatically figure this out.
 
-### Combining the data
-we need to combine the data we collected earlier to create a list of all the test centres. We'll include their name, pass rate, lat long, rating, number of ratings, and the Google Maps URL in a JSON file. 
+## Step 3: Combining the Data
+We need to combine the data we collected earlier to create a list of all the test centres. We'll include their name, pass rate, lat long, rating, number of ratings, and the Google Maps URL in a JSON file. 
 Let's save this file in a directory called `testcentres` in the root directory.  
 Here's an example of what the JSON file should look like:
 ```json
@@ -177,11 +182,11 @@ Here's an example of what the JSON file should look like:
 ]
 ```
 
-nce you've saved this file, your directory structure should look like this:  
-![](./resources/directory-structure-2.png)
+# Creating the Landing Page
+In this section we'll start creating our landing page.
 
-## Setting up the landing page
-Before we get started on our landing page, lets install Material UI and emotion:
+## Step 1: Install the Necessary NPM Packages
+We will need to install both [Material UI](https://mui.com/) and [Emotion](https://emotion.sh/docs/introduction):
 ```bash
 > npm install @mui/material
 > npm install @mui/icons-material
@@ -189,10 +194,12 @@ Before we get started on our landing page, lets install Material UI and emotion:
 > npm install @emotion/styled
 ```
 
+## Step 2: Style the Landing Page
 Next, we'll update our `_app.tsx` file and `index.tsx` file to use Material UI components and styles. 
-We'll also change the title of our landing page to "Best Driving Test Pass Rates Near Me.".  
-Here's what the updated files should look like:
-```tsx
+The changes to `_app.tsx` will apply our Material UI theme and our flexbox styling to all pages.  
+
+Replace `_app.tsx` with the following:
+```typescript
 import '../styles/globals.css'
 import type {AppProps} from 'next/app'
 import {Container, createTheme, ThemeProvider} from "@mui/material";
@@ -239,7 +246,8 @@ function MyApp({Component, pageProps}: AppProps) {
 export default MyApp
 ```
 
-```tsx
+Replace `index.tsx` with the following:
+```typescript
 import type {NextPage} from 'next'
 import styles from '../styles/Home.module.css'
 import {Typography} from "@mui/material";
@@ -259,7 +267,7 @@ const Home: NextPage = () => {
 export default Home
 ```
 
-The `Home.modules.css` file will contain specific styles for our landing page. Replace it with the following:
+We then need to change the `Home.modules.css` file. This file will contain specific styles for our landing page. Replace it with the following:
 ```css
 .container {
   padding: 0 2rem;
@@ -292,7 +300,7 @@ The `Home.modules.css` file will contain specific styles for our landing page. R
 }
 ```
 
-The `globals.css` file will contain global styles that will be applied to all pages. Replace it with the following:
+Finally, we need to change the `globals.css` file. This file will contain global styles that will be applied to all pages. Replace it with the following:
 ```css
 html,
 body {
@@ -307,20 +315,22 @@ body {
 }
 ```
 
-You can also delete the `api` and `hello.ts` file inside of it.
+You can also delete the `api` folder and `hello.ts` file inside of it, as we will not be creating an API for this application.
 
-Running `npm run dev` should a page that looks like this:
+Run `npm run dev` and navigate to `localhost:3000`. You will now see our styled landing page.
 ![](./resources/landing-page-1.png)
 
-## Creating the Results Page for a Postcode
-One of our main requirements was to enable users to view the best driving test centres in their area, based on their postcode. 
+# Showing the Nearest Test Centres for a Specific Postcode
+One of our main requirements is to enable users to view the best driving test centres in their area, based on their postcode. 
 To achieve this, we need to find the nearest test centres based on a given postcode and display the results on a dedicated web page.
 
+## Step 1: Create a Function To Get Location Data By Postcode
 To do this, we can use [postcodes.io](https://postcodes.io/), an open-source postcode and geolocation API for the UK, to find the nearest test centres based on a postcode. 
 Postcodes.io API provides us with approximate longitude and latitude data based on a postcode, and vice versa. It even offers autocomplete data for partial postcodes, which we'll use later.
 
-To start, we'll define a file that connects to the postcodes.io API. We'll create a new directory called `api` and a new file called `PostcodesAPI.ts` inside it. 
-This file contains the following code:
+To start, we'll define a file that contains all the logic to connect to postcodes.io API and gets the location data for a specific postcode.  
+
+We'll create a new directory called `api` and a new file called `PostcodesAPI.ts` inside it, which should contain the following:
 ```ts
 import LongLat from "./LongLat";
 
@@ -359,8 +369,8 @@ export default interface LongLat {
 }
 ```
 
-We need to create a function that processes our `testcentres.json` file that we generated earlier and converts it into a list of objects. 
-To achieve this, we'll use the `getStaticProps` function provided by Next.js. You can read more about this [here](https://nextjs.org/learn/basics/data-fetching/with-data).
+## Step 2: Create a Function To Get Test Centre Data
+We need to create a function that returns the list of objects from the `testcentres.json` file that we generated earlier.
 
 Create a new file inside the `lib` directory called `testcentres.ts` containing the following:
 ```ts
@@ -398,9 +408,11 @@ export interface TestCentreWithDistance extends TestCentre {
 }
 ```
 
-Now, we can create a new page called `pass-rates.tsx` in the `pages` directory. This will get the test centres within the radius and display these. To calculate the distance we can use the [Haversine formula](https://en.wikipedia.org/wiki/Haversine_formula), and then convert that to miles. 
+## Step 3: Create A Page to Show Results
+
+Now, we can create a new page called `pass-rates.tsx` in the `pages` directory. This will display the details of all test centres nearest to the supplied postcode, within the supplied radius.  
 The `pass-rates.tsx` file should contain the following code:
-```tsx
+```typescript
 import React, {useEffect} from "react";
 import {useRouter} from 'next/router'
 import Head from "next/head";
@@ -487,20 +499,33 @@ export default function Results({testCentres}:any) {
     );
 }
 ```
+Let's go through in detail what is happening here.  
+To get the supplied postcode and radius we use Next.js's Router in the line `const {postcode, radius} = router.query`. This reads the query params from the URL and copies them into parameters with the same name.  
+For example, if the URL is `http://localhost:3000/pass-rates?postcode=NG16JX&radius=10`, then the `postcode` variable will be set to NG16JX, and the `radius` variable will be set to `10`.
 
-We can now navigate to the /pass-rates page and pass in a postcode and a radius. E.g. to find all test centres within a 10 mile radius of Nottingham we can navigate to:
+To get the test centre data we use the function we defined in the previous step, `getTestCentres`. We use this in combination with Next.js's `getStaticProps` function. `getStaticProps` is a special function that
+is run when the page is statically generated at build time. That means the test centres data is already loaded before a user loads the page, which drastically helps speed up the rendering time for a page. You can read more about this [here](https://nextjs.org/learn/basics/data-fetching/with-data).
+
+To know which test centres are within the specified radius we first calculate the latitude and longitude of the specified postcode by calling the `getLongLatFromPostcode` function we defined earlier. 
+Using the longitude and latitude, along with the radius and all the test centre data, we calculate the distance between the specified postcode and each test centre using the [Haversine formula](https://en.wikipedia.org/wiki/Haversine_formula). 
+We then convert that distance into miles (as our radius measurement is miles). We then use this distance to filter out any test centre with a distance greater than the specified radius.
+
+Finally, we display all the results in a list.
+
+We can now navigate to the `/pass-rates` page and pass in a postcode and a radius. E.g. to find all test centres within a 10-mile radius of Nottingham we can navigate to:
 http://localhost:3000/pass-rates?postcode=NG16JX&radius=10
 
-Which will show us the following page:
+Which will show us a page will all the test centres within 10 miles of Nottingham.
 ![](./resources/pass-rates-1.png)
 
-Try it out with your own postcode and different radius's!
 
-### Showing the results as a table
-While our pass rates page does show the correct results, it's not very pretty. Let's add a table instead to render the data.
+Try it out with your own postcode!
 
-To do this, let's add a new field `ResultsTable.tsx` to our `components` directory, which should contain the following:
-```tsx
+## Step 4: Showing the Results as a Table
+While our `/pass-rates` page does show the correct results, it's not very pretty. Let's use a table instead to render the data.
+
+To do this, let's add a new file `ResultsTable.tsx` to our `components` directory, which should contain the following:
+```typescript
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
@@ -710,20 +735,21 @@ export default function ResultsTable({results}: ResultsTableProps) {
     );
 }
 ```
-There's a lot of code in this file, however you should note that a lot of it is copied from the "Sorting & Selecting" example given for tables in Material UI [here](https://mui.com/material-ui/react-table/#sorting-amp-selecting).  
+There's a lot of code in this file, however a lot of it is copied from the "Sorting & Selecting" example given for tables in Material UI [here](https://mui.com/material-ui/react-table/#sorting-amp-selecting).  
 The most important section to focus on is the tsx returned from the function, showing how our table is rendered and with what cells and rows.  
 The table contains functionality for the user to sort by each column, and each column contains a map icon, linking the user to the test centre on Google Maps.
 
-Navigating to http://localhost:3000/pass-rates?postcode=NG16JX&radius=10 now shows us a table:  
+Navigating to http://localhost:3000/pass-rates?postcode=NG16JX&radius=10 now shows us a table with the same results as before.  
 ![](./resources/pass-rates-2.png)
 
-## Adding search functionality to the landing page
-The next requirement to focus on is to allow users to search for their nearest test centres from the landing page.  
-To do this, we'll add a text field for the postcode, and a dropdown for the radius.
+# Adding Search Functionality
+Now that we have a page that shows the nearest and best test centres based on a postcode, we need to add a user-friendly way to search by a postcode.  
+To do this we'll add a form, with a text field for the postcode, and a dropdown for the radius.
 
-We'll start by adding a new component under our `component` directory called `Search.tsx`. This will contain the search elements we just described, with a submit button that will navigate the user to our pass rates page.
+## Step 1: Create Search Component
+We'll start by adding a new component under our `component` directory called `Search.tsx`. This will contain the elements we just described and a submit button that will navigate the user to our `/pass-rates` page.
 `Search.tsx` should contain the following:
-```tsx
+```typescript
 import {Box} from "@mui/system";
 import {Button} from "@mui/material";
 import Paper from "@mui/material/Paper";
@@ -768,7 +794,7 @@ export default function Search({initialPostcode, initialRadius}:any) {
                 </FormControl>
 
                 <Box sx={{m: 1, mt: 1.8, flex: 1, display: 'flex', flexDirection: 'column'}}>
-                    <Button sx={{alignSelf: 'center'}} variant="outlined" onClick={handleSubmit}  size="large">Search</Button>
+                    <Button sx={{alignSelf: 'center'}} variant="outlined" onClick={handleSubmit} size="large">Search</Button>
                 </Box>
 
             </div>
@@ -778,16 +804,25 @@ export default function Search({initialPostcode, initialRadius}:any) {
     );
 }
 ```
-Here we can see that we have a `TextField` for the postcode and a dropdown for the radius. Navigating to http://localhost:3000 shows us these new search fields:  
+Here we can see that we have a `TextField` element for the postcode and a `Select` element for the radius. Our submit `Button` element calls the `handleSubmit` function when pressed, which navigates the user to the `/pass-rates` page, 
+passing in the postcode and radius as query parameters.
+
+## Step 2: Add Search Component to Landing Page
+Next we need to add the `<Search>` element to our landing page. Open `index.tsx` and add the following after the `<div>` containing the `<Typography>` element:
+```typescript
+<Search initialPostcode={''} initialRadius={10}/>
+```
+
+Go to http://localhost:3000. You should now see the new search fields.    
 ![](./resources/landing-page-2.png)
 
-Try entering a postcode and clicking search, it will bring you to the pass rates page.
+Try entering a postcode and clicking search, it will bring you to the `/pass-rates` page.
 
-### Adding autocomplete to our postcode search
+## Step 3: Add Autocomplete to Postcode Search
 Currently, we have no validation for postcodes in our search component. One way that we can validate postcodes is to use [postcodes.io](https://postcodes.io/) again.  
 We can call postcodes.io to check if the entered postcode is a real postcode. Even better, postcodes.io offers an autocomplete endpoint which we can use to show an autocomplete dropdown.  
 
-We'll add the following to the `PostcodesAPI.ts` file:
+We'll add the following functions to our `PostcodesAPI.ts` file:
 ```ts
 export async function getPostcodeSuggestions(partial: string) {
   return (await getPostcodeAutocompleteResponse(partial))?.result;
@@ -826,24 +861,20 @@ interface PostcodeAutocompleteResponseDTO {
 }
 ```
 We have added:
-1. `getPostcodeSuggestions()`, which calls Postcodes.io's autocomplete endpoint to get the autocomplete suggestions.
-2. `isValidPostcode()`, which checks that the passed in postcode is a valid postcode
+1. `getPostcodeSuggestions`, which calls Postcodes.io's autocomplete endpoint to get the autocomplete suggestions.
+2. `isValidPostcode`, which checks that the passed in postcode is a valid postcode
 
-Install:
-```shell
-npm install lodash
-npm install @types/lodash
-```
+Next we'll create a new component with our autocomplete functionality, which will replace the postcode `TextField` element in the `Search` component.   
 
-We then need to create a new component, `PostcodeAutocomplete.tsx` in the `components` directory which will replace the postcode `TextField` element in the `Search` component with an `Autocomplete` element. Firstly, we'll need to install lodash.  
+Firstly, we'll need to install lodash.  
 Run the following:
 ```shell
 npm install lodash
 npm install @types/lodash
 ```
 
-Then, add the following to `PostcodeAutocomplete.tsx`:
-```tsx
+We then need to create the new component, `PostcodeAutocomplete.tsx` in the `components` directory, which should contain the following:
+```typescript
 import * as React from 'react';
 import {useCallback, useEffect} from 'react';
 import Box from '@mui/material/Box';
@@ -971,16 +1002,16 @@ export default function PostcodeAutocomplete({
         />
     );
 }
-```
-Here we're using Material UI's Autocomplete component.
+````
 
 Let's take a closer look at some of the key features in our code:
 1. **Debouncing with Lodash**: We've integrated Lodash's debounce function to ensure that we only call Postcodes.io's API once the user has stopped typing for at least 300 milliseconds. This helps to minimize API calls and improve the overall user experience. We then use the data returned from the API to populate the options for our autocomplete dropdown.
 2. **Handling validation**: The parent component takes care of handling the logic to set the value and error state for validation purposes.
 3. **Visual feedback for errors**: If the error prop is set to true, we visually indicate that the user has entered an invalid postcode by highlighting the text field in red and displaying an error message.
+4. **Autocomplete**: We're using Material UI's Autocomplete with the results from Postcodes.io to display a dropdown when the user starts typing a postcode.
 
 Next, we update the `Search.tsx` component to use our new `PostcodeAutocomplete` component. Replace the entire component with the following:
-```tsx
+```typescript
 export default function Search({initialPostcode, initialRadius}:any) {
     const router = useRouter()
     const [postcode, setPostcode] = useState<string | null>(null);
@@ -1036,22 +1067,23 @@ export default function Search({initialPostcode, initialRadius}:any) {
 }
 ```
 
-We've made some changes to our code to improve its functionality. Let's take a closer look:
+What we've achieved with this change:
 1. **Handling Postcode Validation**: To improve the accuracy of our user inputs, we've added a new state variable called postcodeError which tracks whether the entered postcode is valid or not. We pass this variable to the PostcodeAutocomplete component to provide visual feedback to the user.
 2. **Validating Postcodes with PostcodesAPI**: We now validate the postcode in the handleSubmit() method using the isValidPostcode() method in PostcodesAPI. This allows us to ensure that the user has entered a valid UK postcode before submitting the form.
 
-Now, let's test our changes!    
+Now, let's test our changes!  
+
 Go to http://localhost:3000 and try entering a post code into the landing page.
 You should see something like this:    
 ![](./resources/landing-page-3.png)
 
 Clicking on one of the postcodes will autofill the postcode for you.
 
-### Adding search functionality to the Pass Rates page
-A nice extra feature would be to allow the user to search for a new postcode from the Pass Results page without having to go back to the landing page.  
-As we've got Search and PostcodeAutocomplete in their own components we can easily add this.  
-replace the return block in `pass-rates.tsx` with the following:
-```tsx
+## Step 4: Add Search Functionality to the Pass Rates Page
+A nice extra feature would be to allow the user to search for a new postcode from the `/pass-rates` page without having to go back to the landing page.  
+As we've got the `Search` and `PostcodeAutocomplete` functionality in their own components we can easily add this to the `/pass-rates` page.    
+Replace the return block in `pass-rates.tsx` with the following:
+```typescript
 return (
     <>
         <Head>
@@ -1069,33 +1101,25 @@ return (
     </>
 );
 ```
-The only thing we've changed here is that we've added our `Search` component. 
-We initially populate the postcode and radius fields with the previous search's parameters.
+The only thing we've changed here is that we've added our `Search` component.  
+The only difference between our use of `Search` here and in the landing page is that here we initially populate the postcode and radius fields with the previous search's parameters.
 
-The Pass Rates page should now look like this:  
+The `/pass-rates` page will now contain a search form at the top.   
 ![](./resources/pass-rates-3.png)
 
-## Display Results for Each City
-One of the key requirements for our project is to allow users to select the best test centers near a city. 
-Creating static pages for each city can improve SEO and help us increase our chances of appearing at the top of Google's search results.  
+# Display Nearest Test Centres for Each City
+One of the key requirements for our project is to allow users to select the best test centres near a city. We want to do this for two reasons:
+1. If the user wants to look for test centres around a specific city, they don't need to find a postcode for that city.
+2. We can create static pages for each city, which will improve SEO (discussed in a later section) and help increase our chances of appearing at the top of Google's search results.
 
-We will create static pages for each city, which can be reached at `/pass-rates/<city name>`.  
-This means that Google can easily index these pages and return them when someone searches for the best driving test centres near a city.  
-You might have noticed that other websites do something similar to this, where they create static pages for commonly searched criteria to increase their chances of appearing at the top of Google's search results (amongst other benefits).  
-One example of this is crontab.guru, which has static pages for commonly used cron expressions, e.g. every 5 minutes, which can be found at [https://crontab.guru/every-5-minutes](https://crontab.guru/every-5-minutes).
-
-To implement this, we need to know:
-- The list of cities
-- The nearest test centres for each city
-
-We'll start first with getting the nearest test centres to each city.
-
-### Obtaining Location Data for Each City
-To calculate the nearest test centers to each city, we need to know the latitude and longitude of each city. 
+## Step 1: Calculating the Nearest Test Centres for Each City
+To calculate the nearest test centres to each city, we need to know the latitude and longitude of each city. 
 We can start by compiling a list of all the cities in the UK from [Wikipedia](https://en.wikipedia.org/wiki/List_of_cities_in_the_United_Kingdom).
 
 Next, we can use Google Maps APIs to search for the latitude and longitude of each city. For instance, to obtain the location data for Birmingham, we send the following request:
+```
 https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=Birmingham&inputtype=textquery&key=<YOUR API KEY>&locationbias=ipbias&fields=name,place_id
+```
 
 The response contains the name of the city and its place ID:
 ```json
@@ -1110,9 +1134,10 @@ The response contains the name of the city and its place ID:
 }
 ```
 
-
 Using the place ID, we can then send a second request to retrieve the latitude and longitude of the city:
+```
 https://maps.googleapis.com/maps/api/place/details/json?place_id=ChIJc3FBGy2UcEgRmHnurvD-gco&key=<YOUR API KEY>&fields=geometry
+```
 
 The response contains the location data for the city:
 ```json
@@ -1140,8 +1165,9 @@ The response contains the location data for the city:
 }
 ```
 
-To figure out which test centres are near each city we first need to decide on what distance we consider "close". I considered anything within a 10-mile radius close.    
-For each city we can go through each test centre, calculate the distance between the city and the test centre, and if the distance is less than 10 miles then we add that test centre to the list of close test centres.
+To calculate which test centres are near each city we first need to decide on what distance we consider "close". I considered anything within a 10-mile radius close.    
+For each city we need to go through each test centre and calculate the distance between the city and the test centre. If the distance is less than 10 miles then we add that test centre to the list of close test centres.  
+As before, once you have the data for each city you can use your preferred scripting language to extract the list of nearest test centres for each city.
 
 You'll want to save each city with its closest test centres in individual JSON files. Each json file should be the name of city, in a directory called `cities`.   
 E.g. you'll have a file called `birmingham.json` that looks like this:
@@ -1314,8 +1340,10 @@ and another called `aberdeen.json` that looks like this:
 }
 ```
 
-### Create a Page To Show All Cities
-The first thing we'll do is create the necessary lib function to get all the city names. We can do this in a similar way to how we got all the test centre data.  
+## Step 2: Create a Page To Show All Cities
+The first thing we'll do is create a page that lists all cities. Later we'll use this page to navigate the user to each corresponding city's results page.
+
+Before we create the page we'll create the necessary lib function to get all the city names. We do this in a similar way to how we got all the test centre data.  
 Create a file called `cities.ts` in the `lib` directory. This should contain the following:
 ```ts
 import fs from 'fs';
@@ -1331,10 +1359,10 @@ export function getAllCityIds() {
     });
 }
 ```
-Here we exposed a method which returns the name of all cities based on the json files that we saved in the `cities` directory in the previous step.
+Here we exposed a function called `getAllCityIds`, which returns the name of all cities, with each city name taken from the name of the json files that we saved in the `cities` directory in the previous step.
 
-We can then create a new page to show all the cities. Create a new file, `cities.tsx` under the `pages` directory. This should contain the following:
-```tsx
+We can then create the page to show all the cities. Create a new file, `cities.tsx` under the `pages` directory. This should contain the following:
+```typescript
 import {Box, Typography} from "@mui/material";
 import {getAllCityIds} from "../lib/cities";
 import Head from "next/head";
@@ -1380,15 +1408,22 @@ export default function cities({cityIds}: CitiesProps) {
 }
 ```
 
-Here we load the city names as static props (so on build time), and generate a list containing each city name.
+Here we load the city names using `getStaticProps` (so on build time), and render a list containing each city name.
 
-We can then navigate to `http://localhost:3000/cities` and we will be shown a list of all the cities we imported:  
+Navigate to `http://localhost:3000/cities`. You will see a page containing all the city names.  
 ![](./resources/cities-1.png)
 
-### Create a Page For Each City
-Now that we have a list of all the cities, we need to link each city to a page that displays the nearest test centres. 
-To achieve this, we will create a static page for each city that we have JSON data for in our `cities` directory. 
-We can accomplish this by using Next.js's `getStaticPaths()` function, which allows us to specify a list of paths that should be generated as pages during build time.
+## Step 3: Create a Page For Each City
+Now that we have a list of all the cities, we need to create a page for each city.
+
+To achieve this, we will create a static page for each city that we have JSON data for in our `cities` directory. These pages will have the URL format `/pass-rates/<city name>`.    
+This means that Google can easily index these pages and return them when someone searches for the best driving test centres near a city.    
+You might have seen that other websites do something similar to this, where they create static pages for commonly searched criteria to increase their chances of appearing at the top of Google's search results (amongst other benefits).  
+One example of this is `crontab.guru` which has static pages for commonly used cron expressions, e.g. every 5 minutes, which can be found at [https://crontab.guru/every-5-minutes](https://crontab.guru/every-5-minutes).  
+If you search in Google for `cron job every 5 minutes`, then that page will be the first result.
+
+Thankfully we don't have to create each city's page by hand. 
+We can easily accomplish this by using Next.js's `getStaticPaths` function, which allows us to specify a list of paths that should be generated as pages during build time.
 
 To start, we will need to generate a list of city names. In the `cities.ts` file located in the `lib` directory, add the following function:
 ```ts
@@ -1404,12 +1439,13 @@ export function getAllCityPaths() {
   });
 }
 ```
-This function reads the contents of the `cities` directory and returns an array of city names by removing the `.json` extension from the file names.
+This function reads the contents of the `cities` directory and returns an array of city names by removing the `.json` extension from the file names. To use `getStaticPaths` we need to have each city in the format above, 
+which is each city has an object containing a `params` property, which contains an `id` property, which is set to the name of page.  
 
 Next, we need to create a new page that will display the test centres for a particular city. Create a directory called `pass-rates` under the `pages` directory, and then create a file called `[id].tsx` under the `pass-rates` directory. 
-It is important that the square brackets are included in the name, as that tells NextJS that we want the page name to be derived from the list passed to `getStaticPaths`.  
-Inside the `[id].tsx` file add the following:
-```tsx
+It is important that the square brackets are included in the name, as that tells Next.js that we want the page name to be derived from the list passed to `getStaticPaths`.  
+The `[id].tsx` file should contain the following:
+```typescript
 import {getAllCityPaths} from "../../lib/cities";
 import React from "react";
 
@@ -1436,15 +1472,16 @@ export async function getStaticProps({params}: any) {
   }
 }
 ```
-This file exports two functions, `getStaticPaths` and `getStaticProps`. `getStaticPaths` is used to generate the paths for each city, and `getStaticProps` is used to fetch the data for each city based on the path.
+This file exports two functions, `getStaticPaths` and `getStaticProps`. `getStaticPaths` is used to generate the paths for each city, and `getStaticProps` is used to fetch the data for each city based on the path. 
+For now, we are just rendering the name of the city.
 
 As we placed our `[id].tsx` file under the `pass-rates` directory, any generated page will be found at `/pass-rates/<page>`.
 
 Let's test this out! 
-Try navigating to the generated page for Birmingham. Go to `http://localhost:3000/pass-rates/birmingham`. You should see a page showing the city name:  
+Navigating to the generated page for Birmingham. Go to `http://localhost:3000/pass-rates/birmingham`. You should see a page showing the city name.
 ![](./resources/id-1.png)
 
-#### Show the Nearest Test Centres For Each City
+### Show the Nearest Test Centres For Each City
 Now that we have the generated pages, lets populate each of them with the nearest test centre data.  
 
 First, we'll need to add another function to `cities.ts` in the `lib` directory to get the data for each city. Add the following function:
@@ -1459,11 +1496,11 @@ export function getCityData(id: string) {
   };
 }
 ```
-This function parses the JSON from each city file and returns it with the city name set as the `id` property. 
+This function parses the JSON from each city file and returns it, with the city name set as the `id` property. 
 
-Next, let's change the `getStaticProps` function to get the cityData, and then change the React component to render the results. 
+Next, let's change the `getStaticProps` function to call `getCityData`, and then change the React component to render the results. 
 Replace `[id].tsx` completely with the following:
-```tsx
+```typescript
 import {getAllCityPaths, getCityData} from "../../lib/cities";
 import React from "react";
 import Head from "next/head";
@@ -1508,18 +1545,18 @@ export async function getStaticProps({ params }:any) {
 }
 ```
 What we've changed:
-1. In `getStaticProps`, we are now calling `getCityData` to retrieve the test centre data for the selected city. We then add this data to the props that are passed to the `city` component.
+1. In `getStaticProps`, we are now calling `getCityData` to retrieve the test centre data for the selected city. We then add this data to the props.
 2. We are rendering the `Search` component, which is used to search for a test centre by postcode. We are passing in the postcode for the selected city so that it is used as the default search term.
 3. We are passing the test centre data to the `ResultsTable` component, which is responsible for rendering the table that shows the pass rates for each test centre. We are only passing the test centres that are nearest to the selected city.
 
-Going to `http://localhost:3000/pass-rates/birmingham` will now show a page very similar to the Pass Rates page:  
+Going to `http://localhost:3000/pass-rates/birmingham` will now show a page very similar to the `/pass-rates` page:  
 ![](./resources/pass-rates-4.png)
 
-### Link each city name to its own page from /cities
+## Step 4: Link Each City Name in /cities
 The next step is to go back to the `/cities` page and add a button for each city that links to the city's individual page.    
 
-Open the `cities.tsx` file under `pages` and replace the React component with the following code:
-```tsx
+Open the `cities.tsx` file under `pages` and replace the React component with the following:
+```typescript
 export default function cities({cityIds}: CitiesProps) {
   return (
           <>
@@ -1549,18 +1586,19 @@ export default function cities({cityIds}: CitiesProps) {
 ```
 This code changes each city name into a button that links to the corresponding city page.
 
-Visit `http://localhost:3000/cities` to see the updated page with clickable city names:
+Navigate to `http://localhost:3000/cities`. You will see the updated page with a button for each city.
 ![](./resources/cities-2.png)
 
-Clicking on any button will now bring you to that city's page.    
+Clicking on any button will now bring you to that city's page.   
+
 You might notice that it's slow to render the city pages. This is because Next.js is rendering the pages on the fly at runtime when running the app in dev mode. 
 When the application is deployed in production mode it will be much faster as each page will be statically rendered at build time.
 
-### Add Link to /cities On Landing Page
+## Step 5: Add a Link to /cities on the Landing Page
 Finally, let's add a link to our `/cities` page from the landing page.
 
 Open `index.tsx` and add the following code under the `<Search/>` element:
-```tsx
+```typescript
 <Box sx={{m: 2, mt: 1.8, display: 'flex', flexDirection: 'column'}}>
   <Link href={`/cities`} passHref>
     <Button sx={{alignSelf: 'center'}} variant="outlined" component="a">See all cities</Button>
@@ -1571,33 +1609,35 @@ Open `index.tsx` and add the following code under the `<Search/>` element:
 Visit `http://localhost:3000` to see the updated landing page with the "See all cities" button:   
 ![](./resources/landing-page-4.png)
 
-## Adding the finishing touches
+# Adding the Finishing Touches
 Congratulations on building your application! If you're planning on deploying it to the public, there are a few finishing touches that can take it to the next level of professionalism. 
 In this section, we'll go over some easy but important tweaks that will make your app look even better.
 
-### Adding an icon
-When you open your application at `http://localhost:3000`, you may notice that the favicon (the small icon that appears on the tab in your browser) is set to the NextJS logo. 
-That's not very personalized, is it? We should definitely change this to be the icon for our website.
+## Adding an Icon
+When you open your application at `http://localhost:3000`, you may notice that the favicon (the small icon that appears on the tab in your browser) is set to the Next.js logo. 
+That's not very personalized, is it? We will change this to be the icon for our website.
 
-But don't worry, getting an icon is easier than you think! 
 There are plenty of places online where you can get free assets. 
-One of my favorites is [flaticon.com](https://www.flaticon.com). Let's use the icon we found [here](https://www.flaticon.com/free-icon/pass_1633103?term=exam+pass&page=1&position=4&origin=search&related_id=1633103) for our website.
+One of my favorites is [flaticon.com](https://www.flaticon.com). Let's use the icon [here](https://www.flaticon.com/free-icon/pass_1633103?term=exam+pass&page=1&position=4&origin=search&related_id=1633103) for our website.
 
-Before we get started, remember that favicons have a specific size: 32x32 pixels. So make sure to download the icon as a 32x32 PNG file. Once you have it, you'll need to convert it to a .ico file, which is what we need for our favicon. 
+Before we get started, remember that favicons have a specific size: 32x32 pixels. So make sure to download the icon as a 32x32 PNG file. 
+Once you have it, you'll need to convert it to a .ico file, which is what we need for our favicon. 
 There are plenty of online tools for doing this, but one option is [here](https://image.online-convert.com/convert-to-ico). Just upload the PNG file and convert it to .ico.
 
 Now that you have your `favicon.ico` file, it's time to replace the existing one in the `public` directory. This will ensure that your new icon is used when your app is deployed.
 
-Once you've completed this step, head back to http://localhost:3000. You should see that the icon has changed on the tab! Look at how much more professional your app looks now:  
+Once you've completed this step, head back to http://localhost:3000. 
+You should see that the icon has changed on the tab. 
 ![](./resources/tab.png)
 
-### Adding a Sitemap and robots.txt
-Your website is almost ready to go live! However, before we deploy it, let's add a sitemap and a robots.txt file to improve its search engine optimization (SEO). 
-Sitemaps help search engines understand the structure of your website and find all the relevant pages. 
+## Adding a Sitemap and robots.txt
+Your website is almost ready to go live! However, before we deploy it, let's add a sitemap and a robots.txt file to improve its search engine optimization (SEO).  
+Sitemaps help search engines understand the structure of your website and find all the relevant pages.  
 The robots.txt tells search engines how to crawl your website.
 
 To add these files to your website, we can use a package called `next-sitemap`. This package will automatically generate a sitemap and robots.txt for all of our static pages.
 
+### Step 1: Add next-sitemap.config.js
 First, we need to create a `next-sitemap.config.js` file in the root directory of our project. Copy the following code into the file:
 ```js
 /** @type {import('next-sitemap').IConfig} */
@@ -1608,13 +1648,15 @@ const config = {
 }
 module.exports = config
 ```
-This sets up the configuration for `next-sitemap`. Notice that the siteUrl is set to `https://yourdomainname.com`. Don't worry, we will update this later.
+This sets up the configuration for `next-sitemap`. Notice that `siteUrl` is set to `https://yourdomainname.com`. Don't worry, we will update this later.
 
+### Step 2: Install next-sitemap
 Next, let's add the `next-sitemap` package to our project by running the following command in our terminal:
 ```shell
 npm install next-sitemap
 ```
 
+### Step 3: Add postbuild Step
 Once the package is installed, we need to add a `postbuild` step to our `package.json` file to generate the sitemap. Open the `package.json` file and add the following line after the `build` command:
 ```json
     "build": "next build",
@@ -1665,20 +1707,19 @@ sitemap-0.xml:
 ...
 ```
 
-### How to Make Your App a Progressive Web App (PWA)
-Have you heard of PWAs? They're a game-changer for providing a consistent experience across a variety of devices, and they allow users to install your web app on their device as if it were a native Android or iOS app. 
-And the good news is that with NextJS, setting up your application as a PWA is quick and easy!  
+## How to Make Your App a Progressive Web App (PWA)
+PWAs are a game-changer for providing a consistent experience across a variety of devices, and they allow users to install your web app on their device as if it were a native Android or iOS app. 
+And the good news is that with Next.js, setting up your application as a PWA is quick and easy!  
 You can read more about them [here](https://web.dev/learn/pwa/).
 
-#### Step 1: Install next-pwa
+### Step 1: Install next-pwa
 
 The first thing we'll do is install `next-pwa` with the following command:  
 ```shell
 npm install next-pwa
 ```
 
-#### Step 2: Update next.config.js
-
+### Step 2: Update next.config.js
 Next, we need to update our `next.config.js` file to use the `next-pwa` plugin. Here's the code you'll need:    
 ```js
 /** @type {import('next').NextConfig} */
@@ -1694,15 +1735,15 @@ const nextConfig = withPWA({
 module.exports = nextConfig
 ```
 
-#### Step 3: Create manifest.json
-To make our PWA work, we need to create a manifest.json file. The easiest way to do this is to use a generator like [simicart](https://www.simicart.com/manifest-generator.html/). 
+### Step 3: Create manifest.json
+To make our PWA work, we need to create a `manifest.json` file. The easiest way to do this is to use a generator like [simicart](https://www.simicart.com/manifest-generator.html/). 
 Make sure you download the icon at size 512 [here](https://www.flaticon.com/free-icon/pass_1633103?term=exam+pass&page=1&position=4&origin=search&related_id=1633103) as you'll need that for the generator.
 
 Add the following properties to the Simicart manifest generator:
 ![](./resources/manifest.png)
 
 Click "Generate Manifest" and you'll download a zip. Extract this zip to your `public` directory and rename `manifest.webmanifest` to `manifest.json`.  
-Your manifest.json should look like this:  
+Your `manifest.json` should look like this:  
 ```json
 {
   "theme_color": "#008000",
@@ -1738,10 +1779,10 @@ Your manifest.json should look like this:
 }
 ```
 
-#### Step 4: Add PWA tags to the Head element
+### Step 4: Add PWA tags to the Head element
 
 Next, we need to add more tags to our `<Head>` element in the `_app.ts` file to provide more information on our PWA for different devices. Replace the `<Head>` element with the following:  
-```tsx
+```typescript
 <Head>
   <title>Best Driving Test Pass Rates Near Me</title>
   <meta name="description"
@@ -1766,18 +1807,22 @@ Next, we need to add more tags to our `<Head>` element in the `_app.ts` file to 
 </Head>
 ```
 
-Run `npm run build`. You'll see 2 new files in the `public` directory, `sw.js` and `workbox-<guid>.js`.  
+Now, we can generate the PWA config by running the following command in our terminal:
+```bash
+npm run build
+```
+You'll see 2 new files in the `public` directory, `sw.js` and `workbox-<guid>.js`.  
 These files are crucial for PWAs and you can learn more about them [here](https://developer.chrome.com/docs/workbox/).
 
-Once the build process is complete, start up the app by running npm run start. Then, navigate to `http://localhost:3000/`. You should now see an exciting option to install the application.  
+Once the build process is complete, start up the app by running `npm run start`. Then, navigate to `http://localhost:3000/`. You should now see an option to install the application.  
 ![](./resources/landing-page-5.png)
 
 Just a quick heads up: I had to change the `display` property to `standalone` in manifest.json before Chrome allowed me to install the app as a PWA. You might need to do the same.
 
-## Deploy the application
+# Deploy the Application
 We're now ready to deploy our application! We'll be using Vercel to deploy our Next.js application, as it's free for personal projects and is made by the creators of Next.js themselves.
 
-### Deploying with Vercel
+## Deploying with Vercel
 To deploy your application on [Vercel](https://vercel.com/), start by signing up on their website using your GitHub account. 
 Once you're logged in, head to the [Dashboard](https://vercel.com/dashboard) and click the "Add New..." button followed by "Project". From there, click the "Import" button and select your project.  
 ![](./resources/vercel-1.png)
@@ -1789,25 +1834,12 @@ Once the deployment is finished, you can select your project and preview the lan
 ![](./resources/vercel-3.png)
 
 At this point you now have a domain. For example, mine is `public-data-demo.vercel.app`. 
-You can now go and change your `next-sitemap.config.js` file to point to this domain if you wish.
+You can now go and change your `next-sitemap.config.js` file to point to this domain if you wish. Make sure to re-generate the robots.txt and the sitemap by running `npm run build` and check this into your repo.
 
 If you would rather get your own domain without the `vercel.app` suffix then hang on till the next section!
 
-### Buy a domain name
-You may want to have your own domain name that isn't associated with vercel.
-Domains can vary wildly in price depending on how popular the domain is.
-
-I usually get my domains from [Google Domains](https://domains.google.com/) which is quick and easy to use. Say for example we
-wanted a domain related to the phrase `public-data-demo`. We can search for this in Google Domains and buy one for £10 a year:  
-![](./resources/domain-1.png)
-
-We won't be walking through how to add a custom domain here, however I can assure you that is it very easy to do with Google Domains and Vercel.
-You can find a guide on how to do this [here](https://vercel.com/docs/concepts/projects/domains/add-a-domain).
-
-**Once your domain has been added make sure to update your robots.txt file to reflect your new domain name!** We'll get into why this is important in a later section.
-
-### Analytics
-One of the best things about Vercel is its analytics. You can enable these for free by clicking the heartbeat button and then clicking "Enable".  
+### Vercel Analytics
+One great features of Vercel is its analytics. You can enable these for free by clicking the heartbeat button and then clicking "Enable".  
 ![](./resources/analytics-2.png)
 
 This will give you valuable insights into your site's performance and an overall experience score based on multiple factors.      
@@ -1815,17 +1847,30 @@ This will give you valuable insights into your site's performance and an overall
 
 A low score can negatively impact SEO with Google, so it's important to know how your site is performing and make any necessary improvements.
 
+## Buy a Domain Name
+You may want to have your own domain name that isn't associated with vercel.
+Domains can vary wildly in price depending on how popular the domain is.
+
+I usually get my domains from [Google Domains](https://domains.google.com/) which is quick and easy to use. 
+Say for example we wanted a domain related to the phrase `public-data-demo`. We can search for this in Google Domains and buy one for £10 a year:  
+![](./resources/domain-1.png)
+
+We won't be walking through how to add a custom domain here, however I can assure you that is it very easy to do with Google Domains and Vercel.
+You can find a guide on how to do this [here](https://vercel.com/docs/concepts/projects/domains/add-a-domain).
+
+You can now go and change your  file to point to this domain if you wish.  
+**Once your domain has been added make sure to update your `next-sitemap.config.js` file to reflect your new domain name!** Also make sure to re-generate the robots.txt and the sitemap by running `npm run build` and push this into your repo.
+We'll get into why this is important in a later section.
+
 ### Email Forwarding
 If you want to use a custom email address with your domain, but don't want to pay for Google Workspace, you can set up email forwarding for free.
 
-To do this, go to your domain in Google Domains and navigate to the "Email" section. 
-Click "Add email alias" and enter your desired email address at your domain, along with your personal email address that you want emails forwarded to. 
+To do this, go to your domain in Google Domains and navigate to the "Email" section.
+Click "Add email alias" and enter your desired email address at your domain, along with your personal email address that you want emails forwarded to.
 This will allow you to create an email address with your domain name (e.g., hello@drivingpassrate.co.uk) and forward it to your personal email.
 ![](./resources/domain-2.png)
 
-Don't forget to update your robots.txt file to reflect your new domain name once you've added it. We'll go over why this is important in a later section.
-
-## Adding Social Media Support
+# Adding Social Media Support
 Adding social media support is a great way to improve the appearance of your website when shared on social media platforms. 
 The tags provided in the sections below will add a card preview on Twitter and Facebook, which will contain a title, description, and image.
 
@@ -1862,14 +1907,14 @@ Simply enter your website URL and you'll be shown how your website would appear 
 ![](./resources/social-media-1.png)
 
 
-## Measuring Performance
-Your application is now live, great! But now you might be wondering, "How can I see if anyone is even using my website?" 
+# Performance
+Your application is now live, great! But now you might be wondering, "How can I see if anyone is even using my website?".   
 This is where Google Analytics comes in. It's a powerful tool that allows you to measure your website's performance, track user behavior, and gain insights that can help you improve your site.
 
-Here's how to get started with Google Analytics:
+Here's we'll walk through how to get started with Google Analytics.
 
-### Create an Account and Property
-First, go to [analytics.google.com]((https://analytics.google.com/analytics/web/provision/#/provision)) and click the "Start measuring" button. 
+## Step 1: Create an Account and Property
+First, go to [analytics.google.com](https://analytics.google.com/analytics/web/provision/#/provision) and click the "Start measuring" button. 
 This will prompt you to create an account and a property. If you're a single developer, you'll likely have one account to encompass all of your websites and a property per website.
 
 Once you've created your property, you should be given a Measurement ID. 
@@ -1879,10 +1924,10 @@ If not, click on the Gear icon on the bottom left of the screen, click "Data Str
 Here, you'll find the Measurement ID.    
 ![](./resources/g-analytics-2.png)
 
-### Add the Google Analytics Script to Your Website
+## Step 2: Add the Google Analytics Script to Your Website
 To enable analytics collections for your website, you'll need to add the Google Analytics script. 
 Go to `_app.tsx` and add the following code before the `<Head>` element:
-```tsx
+```typescript
 <Script id="google-tag-manager" strategy="lazyOnload"
         src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXX"/>
 <Script id="google-analytics" strategy="lazyOnload">
@@ -1901,33 +1946,37 @@ Go to `_app.tsx` and add the following code before the `<Head>` element:
 
 Make sure to replace the `G-XXXXXX` with your own Measurement ID.
 
-### Start Tracking Your Website's Performance
+## Step 3: Start Tracking Your Website's Performance
 Once you've added the Google Analytics script to your website, you can start tracking its performance. Visit your website a few times and click around on various pages. Eventually, you'll start seeing data in the Google Analytics console.  
 ![](./resources/g-analytics-3.png)
 
 Google Analytics tracks a lot of useful information, such as the number of users who have visited your website, where they're from, which pages are the most popular, and much more. 
-I recommend taking some time to explore the different reports and analytics to gain valuable insights that can help you improve your website. And the best part? Google Analytics is free to use!
+I recommend taking some time to explore the different reports and analytics to gain valuable insights that can help you improve your website.  
+And the best part? Google Analytics is free to use!
 
-## Measuring SEO
-You might have heard of SEO before. It stands for Search Engine Optimisation, and it's all about getting your website to show up in search engine results, like Google.  
+# SEO
+I've mentioned SEO a few times in this post, however if you haven't heard of it before it stands for Search Engine Optimisation, and it's all about getting your website to show up in search engine results, like Google.
+The higher your website ranks in search results, the more likely people are to click on it. And if you're running a monetized website, good SEO can mean more income.  
 
-The higher your website ranks in search results, the more likely people are to click on it. And if you're running a monetized website, good SEO can mean more income.
+Next.js has an excellent introduction to SEO, which you can find [here](https://nextjs.org/learn/seo/introduction-to-seo).
 
 There are plenty of SEO tools out there, some free and some not. 
 Some of these tools can help with keyword research, which can help you figure out which words to use on your website to improve your chances of showing up in search results. 
 But in this section, we'll be focusing on Google Search Console, a free tool that I find particularly useful for SEO.
 
 Google Search Console has two features that I find particularly helpful:
-1. Indexing: You can see if Google has indexed pages from your website. Pages need to be indexed in order to show up in a Google search.
-2. Performance: You can see how many times your website has appeared in Google searches, how many clicks it's received, what people searched for to find it, and more.
+1. **Indexing**: You can see if Google has indexed pages from your website. Pages need to be indexed in order to show up in a Google search.
+2. **Performance**: You can see how many times your website has appeared in Google searches, how many clicks it's received, what people searched for to find it, and more.
 
+## Step 1: Sign Up With Google Seerch Console
 To get started with Google Search Console, go to [search.google.com/search-console](https://search.google.com/search-console) and enter your website's domain under the "Domain" box on the left. Then click "Continue."
 ![](./resources/search-1.png)
 
+## Step 2: Verify Domain Ownership
 You'll see a screen asking you to verify domain ownership, like this:
 ![](./resources/search-3.png)
 
-We need to complete this step before we can use Google Search Console. Unfortunately, we can't do this with the basic Vercel domain that we're using for free. 
+We need to complete this step before we can use Google Search Console. Unfortunately, we can't do this with the basic Vercel domain that we're using for free.  
 This step requires you to have purchased a domain in the previous step. 
 The steps to verify domain ownership will vary depending on your domain provider.
 
@@ -1944,14 +1993,15 @@ If you purchased your domain through Google Domains, you can verify ownership by
 
 Once you've created the custom record, click the "Verify" button in Google Search Console. It may take some time for the change to take effect, so you may need to check back later.
 
-### Indexing
+## Indexing
 Now, you might be wondering why you're not showing up on Google's search results yet. Well, the answer is simple: Google hasn't indexed your website yet.
 
 First, let's talk about what indexing is. Google uses a "crawler" to find your website's `robots.txt` file. 
 This file tells the crawler which URLs it can access to crawl. From there, the `sitemap.xml` file, which contains the locations of all of your static pages, is found. The crawler will then start indexing each of these pages.
  
-It is important to note that this process can take **months**, especially if the website isn't appearing in a lot of Google search results. But there are ways to speed it up. One way is to check if Google has found your sitemap.xml file.  
-You can see if Google has found your sitemap.xml file by clicking on "Sitemaps" on the left-hand sidebar. If your sitemap has been found then it will be listed there.     
+It is important to note that this process can take **months**, especially if the website isn't appearing in a lot of Google search results. But there are ways to speed it up.
+
+One way is to check if Google has found your `sitemap.xml` file. You can see this by clicking on "Sitemaps" on the left-hand sidebar. If your sitemap has been found then it will be listed there.     
 ![](./resources/search-4.png)
 
 If your sitemap hasn't been found, you can speed up the process by submitting a link to your sitemap using the "Add a new sitemap" box. This will add the sitemap to the crawler's queue, increasing the likelihood that your website will be indexed sooner.
@@ -1966,7 +2016,10 @@ In the image above you can see how pages on my website have been indexed over ti
 At the bottom of this page we can see more details on why some pages have not been indexed.  
 ![](./resources/search-6.png)
 
-Here we can see that Google has discovered 15 pages (by using the sitemap), but has not yet crawled or indexed them, and has crawled 4 pages but has not yet indexed them.  
+Here we can see that Google has:
+- discovered 15 pages (by using the sitemap) but has not yet crawled or indexed them 
+- has crawled 4 pages but has not yet indexed them.  
+
 We can drill deeper again to see which pages haven't been indexed.  
 ![](./resources/search-7.png)
 
@@ -1989,13 +2042,10 @@ You should then see a popup stating that the URL was added to the queue. Note th
 
 Keep in mind that even though your page has been added to the queue, it can still take a long time to be indexed. However, it will be faster than waiting for the crawler to automatically crawl it. Also, note that you can only request a small number of pages to be indexed at one time before your quota is exceeded (around 10 pages per day). So, be strategic in which pages you request to be indexed.
 
-Once you reach this, you'll see this popup when trying to request indexing:    
-![](./resources/search-11.png)  
+If you exceed this quota, you'll see this popup when trying to request indexing:    
+![](./resources/search-11.png)
 
-
-
-
-### Performance
+## Performance
 With this feature, you can see how many people have seen your results when searching in Google, how many people have clicked on your results, and what people were searching for when they saw your results.
 
 To access this feature, simply click on "Performance" on the left-hand sidebar of the Search Console dashboard. You'll be presented with a graph that displays a number of metrics, including total clicks, total impressions, average click-through rate (CTR), and average position.
@@ -2007,32 +2057,33 @@ Each result set displays the number of impressions and the position of your webs
 
 To dive even deeper, you can click on any of these results to see the page that appeared in the search results, as well as other metrics such as country and device. 
 With this information, you can better understand how your website is performing in search results and make improvements as needed.  
+
 For example, by clicking the top result "winchester pass rate" we can see the page that appeared in the search results, as well as all the other metrics such as country and device.  
-![](./resources/search-14.png)  
+![](./resources/search-14.png)
 
-### More features
-In addition to search performance analysis, Google Search Console offers a variety of other useful features, including core web vitals (which we also saw in Vercel Analytics). 
-It's definitely worth exploring all the features available to you in Search Console to see what it can do for your website.
-
-### Keyword Research
+## Keyword Research
 When it comes to SEO, it's also important to consider keyword research. 
 While Search Console can show you what keywords people searched for when your website appeared in search results, it can't tell you what similar keywords people searched for when your website did not appear in the results. 
 This is where keyword research comes in.
 
 There are free tools available, such as [Ahrefs Keyword Generator](https://ahrefs.com/keyword-generator), that can help you conduct keyword research. By typing in a number of keywords related to your website, you can find out what people are searching for related to those keywords. For example, if you search for the terms "driving test centre pass rate," you might find that people are searching specifically for "Mill Hill driving test centre pass rate," with around 100 searches per month.  
-Armed with this information, you can optimize your website's content to target these keywords and improve your SEO. 
 ![](./resources/search-15.png)
 
-## Monitise your Website
+Armed with this information, you can optimize your website's content to target these keywords and improve your SEO. 
+
+
+# Monitise your Website
 There are numerous ways that you can earn income from a website, but one popular method is by adding ads. And Google AdSense is an easy and effective way to start earning some revenue.
 
+## Step 1: Sign Up with Google AdSense
 To get started, simply head over to [adsense.google.com/start/](https://adsense.google.com/start/) and sign up. Once you have created an account, you can add your website to start displaying ads.
 
+## Step 2: Add the Script
 After signing in, navigate to the "Sites" tab on the left sidebar, and click on "New site" to add your website. Once you've done that, you will see the code you need to add to your website to start showing ads.
 ![](./resources/money-1.png)  
 
 To add the code to your website, simply go to `_app.tsx` and add the following code just before the `<Head>` element:
-```tsx
+```typescript
 <Script
 src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXX"
 crossOrigin="anonymous"/>
@@ -2040,7 +2091,8 @@ crossOrigin="anonymous"/>
 
 Make sure to replace "ca-pub-XXXXX" with your own unique AdSense publisher ID.
 
-After adding the code to your website, go back to the Google AdSense window and tick the "I've placed the code" option and click "Next." Then, you can click "Request review," and your website will be reviewed for eligibility.
+## Step 3: Enable Ads
+After adding the code to your website, go back to the Google AdSense window and tick the "I've placed the code" option and click "Next." Next, click "Request review", so that your website will be reviewed for eligibility.
 
 While waiting for the review process, you can decide on your ad placement. 
 With Google AdSense, you have the option to let the system automatically place ads on your site or choose ad placements manually. In this post, we'll focus on the former option.
@@ -2056,11 +2108,22 @@ If you're not satisfied with the ad placement, you can always choose to manually
 It's important to note that ads won't appear immediately after adding the code to your website. Google AdSense will review your website to ensure that it meets its policies, which can take up to two weeks.
 
 # Conclusion
-- Link to website
-- GitHub repo
-- Give conclusion on what they learned.
-- Extensions, tests, etc.?
+And there we have it! Firstly, well done for getting through this whole process. Building an entire application and ensuring it's production-ready is no easy feat, so congratulations for getting through this entire guide!
+Let's cover what we've done:
+- Built a website using public data
+- Added a sitemap and robots.txt for SEO
+- Added PWA support
+- Deployed the website using Vercel
+- Added our own domain name
+- Added our own email address for our domain
+- Added support for Twitter and Facebook cards
+- Measured website performance using Google Analytics
+- Measured SEO using Google Search Console
+- Monitised the website using Google AdSense.
 
-# To do
-- sprinkle references to my website all over.
-- Add more "step 1", "Step 2" into sections?
+That is a lot!
+
+You can find all the code used in this post in my repo [here](https://github.com/Zinbo/public-data-demo). 
+As well, you can find a live version of the application we built [here](https://drivingpassrate.co.uk/). 
+
+Till next time!

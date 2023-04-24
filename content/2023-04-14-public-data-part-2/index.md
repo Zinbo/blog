@@ -93,7 +93,7 @@ Next we need to add the `<Search>` element to our landing page. Open `index.tsx`
 ```
 
 Go to http://localhost:3000. You should now see the new search fields.    
-![](./resources/landing-page-2.png)
+![](resources/landing-page-2.png)
 
 Try entering a postcode and clicking search, it will bring you to the `/pass-rates` page.
 
@@ -354,7 +354,7 @@ Now, let's test our changes!
 
 Go to http://localhost:3000 and try entering a post code into the landing page.
 You should see something like this:    
-![](./resources/landing-page-3.png)
+![](resources/landing-page-3.png)
 
 Clicking on one of the postcodes will autofill the postcode for you.
 
@@ -384,7 +384,7 @@ The only thing we've changed here is that we've added our `Search` component.
 The only difference between our use of `Search` here and in the landing page is that here we initially populate the postcode and radius fields with the previous search's parameters.
 
 The `/pass-rates` page will now contain a search form at the top.   
-![](./resources/pass-rates-3.png)
+![](resources/pass-rates-3.png)
 
 # Display Nearest Test Centres for Each City
 One of the key requirements for our project is to allow users to select the best test centres near a city. We want to do this for two reasons:
@@ -690,7 +690,7 @@ export default function cities({cityIds}: CitiesProps) {
 Here we load the city names using `getStaticProps` (so on build time), and render a list containing each city name.
 
 Navigate to `http://localhost:3000/cities`. You will see a page containing all the city names.  
-![](./resources/cities-1.png)
+![](resources/cities-1.png)
 
 ## Step 3: Create a Page For Each City
 Now that we have a list of all the cities, we need to create a page for each city.
@@ -758,7 +758,7 @@ As we placed our `[id].tsx` file under the `pass-rates` directory, any generated
 
 Let's test this out!
 Navigating to the generated page for Birmingham. Go to `http://localhost:3000/pass-rates/birmingham`. You should see a page showing the city name.
-![](./resources/id-1.png)
+![](resources/id-1.png)
 
 ### Show the Nearest Test Centres For Each City
 Now that we have the generated pages, lets populate each of them with the nearest test centre data.
@@ -829,7 +829,7 @@ What we've changed:
 3. We are passing the test centre data to the `ResultsTable` component, which is responsible for rendering the table that shows the pass rates for each test centre. We are only passing the test centres that are nearest to the selected city.
 
 Going to `http://localhost:3000/pass-rates/birmingham` will now show a page very similar to the `/pass-rates` page:  
-![](./resources/pass-rates-4.png)
+![](resources/pass-rates-4.png)
 
 ## Step 4: Link Each City Name in /cities
 The next step is to go back to the `/cities` page and add a button for each city that links to the city's individual page.
@@ -866,7 +866,7 @@ export default function cities({cityIds}: CitiesProps) {
 This code changes each city name into a button that links to the corresponding city page.
 
 Navigate to `http://localhost:3000/cities`. You will see the updated page with a button for each city.
-![](./resources/cities-2.png)
+![](resources/cities-2.png)
 
 Clicking on any button will now bring you to that city's page.
 
@@ -886,7 +886,7 @@ Open `index.tsx` and add the following code under the `<Search/>` element:
 ```
 
 Visit `http://localhost:3000` to see the updated landing page with the "See all cities" button:   
-![](./resources/landing-page-4.png)
+![](resources/landing-page-4.png)
 
 # Conclusion
 This completes part 2!  

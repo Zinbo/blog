@@ -762,5 +762,6 @@ You can find all the code used in this post in my repo [here](https://github.com
 As well, you can find a live version of the application we built [here](https://drivingpassrate.co.uk/).
 
 Look out for part 2, where we'll be adding search functionality and displaying the nearest test centres for each city!
+**Updated:** Part 2 is now available. Read it [here](/blog/web-app-public-data-part-2). 
 
 Till next time!

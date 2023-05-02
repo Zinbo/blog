@@ -1,7 +1,7 @@
 ---
 title: "Creating a Project using Public Data for Fun and Profit: A Step-by-Step Tutorial - Part 3"
 tags: [react, nextjs, vercel]
-date: 2023-04-21T08:30:00.000Z
+date: 2023-05-02T18:00:00.000Z
 path: blog/web-app-public-data-part-3
 cover: ./preview.jpg
 excerpt: How to use public data to build a Next.js app to help you land your next job, and maybe make some money - part 3.
@@ -43,7 +43,7 @@ Now that you have your `favicon.ico` file, it's time to replace the existing one
 
 Once you've completed this step, head back to http://localhost:3000.
 You should see that the icon has changed on the tab.
-![](./resources/tab.png)
+![](resources/tab.png)
 
 ## Adding a Sitemap and robots.txt
 Your website is almost ready to go live! However, before we deploy it, let's add a sitemap and a robots.txt file to improve its search engine optimization (SEO).  
@@ -155,7 +155,7 @@ To make our PWA work, we need to create a `manifest.json` file. The easiest way 
 Make sure you download the icon at size 512 [here](https://www.flaticon.com/free-icon/pass_1633103?term=exam+pass&page=1&position=4&origin=search&related_id=1633103) as you'll need that for the generator.
 
 Add the following properties to the Simicart manifest generator:
-![](./resources/manifest.png)
+![](resources/manifest.png)
 
 Click "Generate Manifest" and you'll download a zip. Extract this zip to your `public` directory and rename `manifest.webmanifest` to `manifest.json`.  
 Your `manifest.json` should look like this:
@@ -230,7 +230,7 @@ You'll see 2 new files in the `public` directory, `sw.js` and `workbox-<guid>.js
 These files are crucial for PWAs and you can learn more about them [here](https://developer.chrome.com/docs/workbox/).
 
 Once the build process is complete, start up the app by running `npm run start`. Then, navigate to `http://localhost:3000/`. You should now see an option to install the application.  
-![](./resources/landing-page-5.png)
+![](resources/landing-page-5.png)
 
 Just a quick heads up: I had to change the `display` property to `standalone` in manifest.json before Chrome allowed me to install the app as a PWA. You might need to do the same.
 
@@ -240,13 +240,13 @@ We're now ready to deploy our application! We'll be using Vercel to deploy our N
 ## Deploying with Vercel
 To deploy your application on [Vercel](https://vercel.com/), start by signing up on their website using your GitHub account.
 Once you're logged in, head to the [Dashboard](https://vercel.com/dashboard) and click the "Add New..." button followed by "Project". From there, click the "Import" button and select your project.  
-![](./resources/vercel-1.png)
+![](resources/vercel-1.png)
 
 After that, leave all the fields on the next screen as they are and click "Deploy". Vercel will now begin deploying your application, and you'll be able to see the progress of the deployment on your screen.  
-![](./resources/vercel-2.png)
+![](resources/vercel-2.png)
 
 Once the deployment is finished, you can select your project and preview the landing page of your app. Click the "Visit" button to access your website, which now has a domain associated with it (e.g., `public-data-demo.vercel.app`).  
-![](./resources/vercel-3.png)
+![](resources/vercel-3.png)
 
 At this point you now have a domain. For example, mine is `public-data-demo.vercel.app`.
 You can now go and change your `next-sitemap.config.js` file to point to this domain if you wish. Make sure to re-generate the robots.txt and the sitemap by running `npm run build` and check this into your repo.
@@ -268,7 +268,7 @@ Domains can vary wildly in price depending on how popular the domain is.
 
 I usually get my domains from [Google Domains](https://domains.google.com/) which is quick and easy to use.
 Say for example we wanted a domain related to the phrase `public-data-demo`. We can search for this in Google Domains and buy one for £10 a year:  
-![](./resources/domain-1.png)
+![](resources/domain-1.png)
 
 We won't be walking through how to add a custom domain here, however I can assure you that is it very easy to do with Google Domains and Vercel.
 You can find a guide on how to do this [here](https://vercel.com/docs/concepts/projects/domains/add-a-domain).
@@ -283,7 +283,7 @@ If you want to use a custom email address with your domain, but don't want to pa
 To do this, go to your domain in Google Domains and navigate to the "Email" section.
 Click "Add email alias" and enter your desired email address at your domain, along with your personal email address that you want emails forwarded to.
 This will allow you to create an email address with your domain name (e.g., hello@drivingpassrate.co.uk) and forward it to your personal email.
-![](./resources/domain-2.png)
+![](resources/domain-2.png)
 
 # Conclusion
 This completes part 3!  

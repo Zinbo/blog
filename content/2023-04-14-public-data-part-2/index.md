@@ -901,4 +901,6 @@ As well, you can find a live version of the application we built [here](https://
 
 Look out for part 3, where we'll be adding the finishing touches and deploying our application!
 
+**Updated:** Part 3 is now available. Read it [here](/blog/web-app-public-data-part-3).
+
 Till next time!
